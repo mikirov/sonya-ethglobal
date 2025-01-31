@@ -5,7 +5,6 @@ import { AddressLinkWrapper } from "./AddressLinkWrapper";
 import { Address as AddressType, getAddress, isAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useEnsAvatar, useEnsName } from "wagmi";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
@@ -144,13 +143,6 @@ export const Address = ({
 
   return (
     <div className="flex items-center flex-shrink-0">
-      <div className="flex-shrink-0">
-        <BlockieAvatar
-          address={checkSumAddress}
-          ensImage={ensAvatar ? ensAvatar : undefined}
-          size={(blockieSizeMap[blockieSize] * 24) / blockieSizeMap["base"]}
-        />
-      </div>
       <div className="flex flex-col">
         {showSkeleton &&
           (isEnsNameLoading ? (
