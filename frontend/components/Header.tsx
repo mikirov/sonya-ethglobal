@@ -3,9 +3,10 @@
 import React, { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SwitchTheme } from "./SwitchTheme";
 import { usePrivy } from "@privy-io/react-auth";
 import { Bars3Icon } from "@heroicons/react/24/outline";
-import { LoginButton } from "~~/components/scaffold-eth";
+import { FaucetButton, LoginButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
@@ -40,6 +41,8 @@ export const HeaderMenuLinks = () => {
               className={`${
                 isActive ? "bg-secondary shadow-md" : ""
               } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
+              rel="noopener noreferrer"
+              target="_blank"
             >
               {icon}
               <span>{label}</span>
@@ -88,25 +91,13 @@ export const Header = () => {
             </ul>
           )}
         </div>
-        {/* <Link href="/" passHref className="items-center hidden gap-2 ml-4 mr-6 lg:flex shrink-0">
-          <div className="relative flex w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold leading-tight">Scaffold-ETH</span>
-            <span className="text-xs">Ethereum dev stack</span>
-          </div>
-        </Link> */}
         <ul className="hidden gap-2 px-1 lg:flex lg:flex-nowrap menu menu-horizontal">
           <HeaderMenuLinks />
         </ul>
       </div>
       <div className="flex-grow mr-4 navbar-end">
+        <SwitchTheme className="mr-2" />
         <LoginButton />
-        {/* <button className="btn btn-primary btn-sm" onClick={login}>
-          Login
-        </button> */}
-        {/* <FaucetButton /> */}
       </div>
     </div>
   );

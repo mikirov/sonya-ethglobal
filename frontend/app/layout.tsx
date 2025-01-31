@@ -1,3 +1,5 @@
+import { Footer } from "~~/components/Footer";
+import { Header } from "~~/components/Header";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
@@ -13,7 +15,13 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
     <html suppressHydrationWarning>
       <body>
         <ThemeProvider enableSystem>
-          <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
+          <ScaffoldEthAppWithProviders>
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              {children}
+              <Footer />
+            </div>
+          </ScaffoldEthAppWithProviders>
         </ThemeProvider>
       </body>
     </html>
