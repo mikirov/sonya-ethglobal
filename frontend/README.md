@@ -1,56 +1,60 @@
-# 🏗 Scaffold-ETH 2
+<img src="./public/sonya.png" alt="Sonya Interface Preview" width="100%" height="100%" style="padding-bottom: 24px;" />
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+# SonyaAI
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+SonyaAI is a decentralized application (dapp) featuring an interactive 3D avatar with text-to-speech capabilities, offering personalized one-on-one sessions with memorized context. All user information is securely stored within smart contracts, ensuring full confidentiality through zero-knowledge proofs.
 
-⚙️ Built using NextJS, RainbowKit, Wagmi, Viem, and Typescript.
+Tech stack: NextJS, Privy, Wagmi, Viem, and Typescript.
 
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+## Key Features
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+- **3D Avatar Interface**: Engage with Sonya through a lifelike AI avatar with text-to-speech interactions
+- **Event Scheduler**: Book and manage one-on-one AI sessions seamlessly
+- **Context-Aware Chat**: Real-time conversations with perfect memory of past interactions
+- **Token-Gated Access**: Exclusive features unlocked through $SONYA and veSONYA staking
+- **Smart Contract Security**: Confidential data storage with zero-knowledge implementation
+
 
 ## Requirements
 
-Before you begin, you need to install the following tools:
 
 - [Node (>= v18.18)](https://nodejs.org/en/download/)
-- Pnpm ([v9.1.0](https://pnpm.io/installation))
+- [Pnpm (>= v9.1.0)](https://pnpm.io/installation)
 - [Git](https://git-scm.com/downloads)
 
 ## Quickstart
 
-To get started with Scaffold-ETH 2, follow the steps below:
+Clone the repository and install dependencies:
 
-1. Install dependencies if it was skipped in CLI:
-
-```
-cd my-dapp-example
+```bash
+git clone https://github.com/mikirov/sonya-ethglobal.git
+cd sonya-ethglobal/frontend
 pnpm install
 ```
-2. Start your NextJS app:
 
-```
+Start your NextJS app:
+
+```bash
 pnpm start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+Visit your app on: `http://localhost:3000`. You can interact with Sonya and explore features like the scheduler and chat interface.
+
+## Tokenomics
+
+Total Supply: 1,000,000,000 $SONYA
+
+- 60% Community Rewards & Engagement
+- 20% Ecosystem Development
+- 10% Team & Contributors
+- 5% Liquidity & Market Making
+- 5% Public Sale
+
+For detailed tokenomics and veSONYA staking information, visit our [documentation](your-docs-link).
 
 
-## Documentation
+## Contributing
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
+We welcome contributions to SonyaAI!
 
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+Please reach out to our team for collaboration opportunities.
