@@ -17,12 +17,16 @@ type HeaderMenuLink = {
 
 export const menuLinks: HeaderMenuLink[] = [
   {
-    label: "Follow on Twitter",
-    href: "https://x.com/sonya_virtuals",
+    label: "Home",
+    href: "/",
   },
   {
-    label: "Buy $SONYA",
-    href: "https://app.virtuals.io/prototypes/0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D",
+    label: "Schedule",
+    href: "/schedule",
+  },
+  {
+    label: "Stake",
+    href: "/stake",
   },
 ];
 
@@ -41,8 +45,6 @@ export const HeaderMenuLinks = () => {
               className={`${
                 isActive ? "bg-secondary shadow-md" : ""
               } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
-              rel="noopener noreferrer"
-              target="_blank"
             >
               {icon}
               <span>{label}</span>
@@ -90,6 +92,11 @@ export const Header = () => {
               <HeaderMenuLinks />
             </ul>
           )}
+        </div>
+        <div className="flex items-center">
+          <Link href="/" className="ml-2 mr-4 text-xl font-bold tracking-tight text-base-content hover:text-primary">
+            Sonya AI
+          </Link>
         </div>
         <ul className="hidden gap-2 px-1 lg:flex lg:flex-nowrap menu menu-horizontal">
           <HeaderMenuLinks />

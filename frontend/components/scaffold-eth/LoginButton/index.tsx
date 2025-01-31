@@ -27,8 +27,8 @@ export const LoginButton = () => {
       {(() => {
         if (!authenticated) {
           return (
-            <button className="btn btn-primary btn-sm" onClick={login} type="button">
-              Connect Wallet
+            <button className="text-white btn btn-primary btn-sm" onClick={login} type="button">
+              Connect to Sonya AI
             </button>
           );
         }

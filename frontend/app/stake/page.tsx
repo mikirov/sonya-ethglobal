@@ -93,8 +93,8 @@ const StakingPage = () => {
                       <p className="text-lg font-medium">Participate in platform governance decisions</p>
                     </div>
                   </div>
-                  <button onClick={login} className="btn btn-primary">
-                    Connect Wallet
+                  <button onClick={login} className="text-white btn btn-primary">
+                    Connect to Sonya AI
                   </button>
                 </div>
               </div>
