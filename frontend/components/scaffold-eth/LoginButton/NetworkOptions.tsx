@@ -1,3 +1,4 @@
+import { usePrivy } from "@privy-io/react-auth";
 import { useTheme } from "next-themes";
 import { useAccount, useSwitchChain } from "wagmi";
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
@@ -14,6 +15,7 @@ export const NetworkOptions = ({ hidden = false }: NetworkOptionsProps) => {
   const { switchChain } = useSwitchChain();
   const { chain } = useAccount();
   const { resolvedTheme } = useTheme();
+  const { logout } = usePrivy();
   const isDarkMode = resolvedTheme === "dark";
 
   return (
@@ -29,7 +31,7 @@ export const NetworkOptions = ({ hidden = false }: NetworkOptionsProps) => {
                 switchChain?.({ chainId: allowedNetwork.id });
               }}
             >
-              <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" />
+              <ArrowsRightLeftIcon className="w-4 h-6 ml-2 sm:ml-0" />
               <span>
                 Switch to{" "}
                 <span

@@ -8,8 +8,8 @@ interface SonyaCharacterProps {
 export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress }) => {
   const [userInput, setUserInput] = useState<string>("");
   const [response, setResponse] = useState<string>("");
-  const [videoUrl, setVideoUrl] = useState<string | null>(null); // State for video URL
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null); // Audio state
+  // const [videoUrl, setVideoUrl] = useState<string | null>(null); // State for video URL
+  // const [audio, setAudio] = useState<HTMLAudioElement | null>(null); // Audio state
 
   const handleSendInput = async () => {
     if (!userInput.trim()) {
@@ -31,7 +31,7 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
       if (apiResponse.data.audio) {
         const audioData = apiResponse.data.audio; // Base64-encoded audio
         const audioElement = new Audio(audioData);
-        setAudio(audioElement);
+        // setAudio(audioElement);
         audioElement.play();
       }
     } catch (error) {
@@ -43,30 +43,22 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[#FFF4E1]">
       <div className="w-full max-w-lg mx-auto">
-        <div className="mb-8">
+        {/* <div className="mb-8">
           {videoUrl ? (
             // Display video if videoUrl is available
-            <video
-              className="w-full max-h-[400px] rounded-lg shadow-md"
-              controls
-              src={videoUrl}
-            >
+            <video className="w-full max-h-[400px] rounded-lg shadow-md" controls src={videoUrl}>
               Your browser does not support the video tag.
             </video>
           ) : (
             // Display the Sonya image from the public folder
-            <img
-              className="w-full max-h-[400px] rounded-lg shadow-md object-cover"
-              src="/sonya.png"
-              alt="Sonya"
-            />
+            <Image className="w-full max-h-[400px] rounded-lg shadow-md object-cover" src="/sonya.png" alt="Sonya" />
           )}
-        </div>
+        </div> */}
         <textarea
           className="w-full h-40 p-4 text-lg border rounded-md shadow-md bg-[#FFF8E6] border-[#FFDBAC] text-[#5F370E]"
           placeholder="Hello. How are you feeling today?"
           value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
+          onChange={e => setUserInput(e.target.value)}
         />
         <div className="flex justify-center mt-4">
           <button

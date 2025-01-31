@@ -116,7 +116,7 @@ export const Address = ({
     return (
       <div className="flex items-center">
         <div
-          className="flex-shrink-0 skeleton rounded-full"
+          className="flex-shrink-0 rounded-full skeleton"
           style={{
             width: (blockieSizeMap[blockieSize] * 24) / blockieSizeMap["base"],
             height: (blockieSizeMap[blockieSize] * 24) / blockieSizeMap["base"],
@@ -147,7 +147,7 @@ export const Address = ({
       <div className="flex-shrink-0">
         <BlockieAvatar
           address={checkSumAddress}
-          ensImage={ensAvatar}
+          ensImage={ensAvatar ? ensAvatar : undefined}
           size={(blockieSizeMap[blockieSize] * 24) / blockieSizeMap["base"]}
         />
       </div>

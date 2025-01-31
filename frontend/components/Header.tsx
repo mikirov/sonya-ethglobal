@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
-import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { usePrivy } from "@privy-io/react-auth";
+import { Bars3Icon } from "@heroicons/react/24/outline";
+import { LoginButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
@@ -56,6 +56,7 @@ export const HeaderMenuLinks = () => {
  */
 export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { login } = usePrivy();
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
     burgerMenuRef,
@@ -101,7 +102,10 @@ export const Header = () => {
         </ul>
       </div>
       <div className="flex-grow mr-4 navbar-end">
-        <RainbowKitCustomConnectButton />
+        <LoginButton />
+        {/* <button className="btn btn-primary btn-sm" onClick={login}>
+          Login
+        </button> */}
         {/* <FaucetButton /> */}
       </div>
     </div>

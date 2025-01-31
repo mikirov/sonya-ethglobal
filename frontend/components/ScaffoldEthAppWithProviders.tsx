@@ -1,19 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
+import { PrivyProvider } from "@privy-io/react-auth";
+import { WagmiProvider } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
-import { WagmiProvider, useAccount, useSignMessage } from "wagmi";
-import axiosInstance, { setAuthToken } from "~~/utils/axiosInstance"; // Import singleton Axios instance
-import { Footer } from "~~/components/Footer";
+import { useAccount, useSignMessage } from "wagmi";
 import { Header } from "~~/components/Header";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { SonyaCharacter } from "~~/components/SonyaCharacter";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
-import { SonyaCharacter } from "~~/components/SonyaCharacter";
+import axiosInstance, { setAuthToken } from "~~/utils/axiosInstance";
 
 const TOKEN_EXPIRY_TIME = 60 * 60 * 1000; // 60 minutes in milliseconds
 
@@ -135,16 +134,29 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   }, []);
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <ProgressBar height="3px" color="#2299dd" />
-        <RainbowKitProvider
-          avatar={BlockieAvatar}
-          theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
-        >
+    <QueryClientProvider client={queryClient}>
+      <PrivyProvider
+        appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""}
+        config={{
+          loginMethods: ["wallet", "email", "sms"],
+          appearance: {
+            theme: mounted ? (isDarkMode ? "dark" : "light") : "light",
+            accentColor: "#2299dd",
+            logo: "/logo.svg",
+            showWalletLoginFirst: true,
+          },
+          embeddedWallets: {
+            createOnLogin: "users-without-wallets",
+            requireUserPasswordOnCreate: true,
+            showWalletUIs: true,
+          },
+        }}
+      >
+        <WagmiProvider config={wagmiConfig}>
+          <ProgressBar height="3px" color="#2299dd" />
           <ScaffoldEthApp>{children}</ScaffoldEthApp>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+        </WagmiProvider>
+      </PrivyProvider>
+    </QueryClientProvider>
   );
 };
