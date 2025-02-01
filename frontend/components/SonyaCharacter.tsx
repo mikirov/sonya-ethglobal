@@ -13,12 +13,13 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
   const { login, authenticated } = usePrivy();
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setMessages([...messages, { role: MessageRole.User, content: input }]);
     setInput("");
-
+    setIsLoading(true);
     try {
       const apiResponse = await axiosInstance.post(`input/process-input`, {
         input,
@@ -38,16 +39,18 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
       }
     } catch (error) {
       console.error("Error sending input:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="container px-8 py-3 pb-16 mx-auto flex flex-col gap-5 h-full">
+    <div className="h-[calc(100vh-124px)] container px-8 py-3 mx-auto flex flex-col gap-5">
       <div className="overflow-hidden h-full">
         <Chat messages={messages} />
       </div>
       <form className="w-full" onSubmit={onSubmit}>
-        <Input input={input} setInput={setInput} />
+        <Input input={input} setInput={setInput} isLoading={isLoading} />
       </form>
     </div>
   );

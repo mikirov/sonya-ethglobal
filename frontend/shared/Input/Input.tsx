@@ -1,6 +1,14 @@
 "use client";
 
-export const Input = ({ input, setInput }: { input: string; setInput: (input: string) => void }) => {
+export const Input = ({
+  input,
+  setInput,
+  isLoading,
+}: {
+  input: string;
+  setInput: (input: string) => void;
+  isLoading: boolean;
+}) => {
   return (
     <div className="w-full flex flex-col">
       <div className="flex justify-between items-center gap-2 bg-base-100 px-3 rounded-2xl">
@@ -12,8 +20,8 @@ export const Input = ({ input, setInput }: { input: string; setInput: (input: st
           value={input}
           onChange={e => setInput(e.target.value)}
         />
-        <button className="h-fit bg-primary hover:bg-primary-focus font-semibold text-base-content px-4 py-2 rounded-2xl">
-          Send
+        <button className="h-fit bg-primary hover:bg-primary-focus font-semibold flex items-center justify-center text-base-content px-4 py-2 rounded-2xl">
+          {isLoading ? <span className="loading loading-ring loading-sm"></span> : "Send"}
         </button>
       </div>
     </div>
