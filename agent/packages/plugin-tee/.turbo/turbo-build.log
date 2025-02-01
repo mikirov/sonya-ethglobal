@@ -1,0 +1,30 @@
+
+
+> @elizaos/plugin-tee@0.1.9-alpha.1 build /Users/tanyageorgieva/Repos/sonya-ethglobal/agent/packages/plugin-tee
+> tsup --format esm --dts
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.3.5
+[34mCLI[39m Using tsup config: /Users/tanyageorgieva/Repos/sonya-ethglobal/agent/packages/plugin-tee/tsup.config.ts
+[34mCLI[39m Target: esnext
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+DTS Build start
+[32mESM[39m [1mdist/_esm-34ZFAN5D.js          [22m[32m132.97 KB[39m
+[32mESM[39m [1mdist/secp256k1-POFHGYGH.js     [22m[32m237.00 B[39m
+[32mESM[39m [1mdist/ccip-F7GDRTRU.js          [22m[32m290.00 B[39m
+[32mESM[39m [1mdist/chunk-PR4QN5HX.js         [22m[32m1.87 KB[39m
+[32mESM[39m [1mdist/index.js                  [22m[32m53.88 KB[39m
+[32mESM[39m [1mdist/chunk-3M76AWJP.js         [22m[32m80.13 KB[39m
+[32mESM[39m [1mdist/chunk-STEFY5OD.js         [22m[32m138.82 KB[39m
+[32mESM[39m [1mdist/_esm-34ZFAN5D.js.map      [22m[32m212.40 KB[39m
+[32mESM[39m [1mdist/secp256k1-POFHGYGH.js.map [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/chunk-PR4QN5HX.js.map     [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/ccip-F7GDRTRU.js.map      [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/index.js.map              [22m[32m144.49 KB[39m
+[32mESM[39m [1mdist/chunk-3M76AWJP.js.map     [22m[32m203.10 KB[39m
+[32mESM[39m [1mdist/chunk-STEFY5OD.js.map     [22m[32m394.55 KB[39m
+[32mESM[39m ⚡️ Build success in 1113ms
+DTS ⚡️ Build success in 11100ms
+DTS dist/index.d.ts 2.57 KB

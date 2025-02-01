@@ -1,0 +1,88 @@
+{
+  "name": "@elizaos/eliza-starter",
+  "version": "0.1.1",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --apply .",
+    "preinstall": "npx only-allow pnpm",
+    "build": "turbo run build",
+    "build-docker": "turbo run build",
+    "cleanstart": "if [ -f agent/data/db.sqlite ]; then rm agent/data/db.sqlite; fi && pnpm --filter \"@elizaos/agent\" start --isRoot",
+    "cleanstart:debug": "if [ -f agent/data/db.sqlite ]; then rm agent/data/db.sqlite; fi && cross-env NODE_ENV=development VERBOSE=true DEBUG=eliza:* pnpm --filter \"@elizaos/agent\" start --isRoot",
+    "start": "pnpm --filter \"@elizaos/agent\" start --isRoot",
+    "start:client": "pnpm --dir client dev",
+    "start:debug": "cross-env NODE_ENV=development VERBOSE=true DEBUG=eliza:* pnpm --filter \"@elizaos/agent\" start --isRoot",
+    "dev": "bash ./scripts/dev.sh",
+    "release": "pnpm build && pnpm format && npx lerna publish --no-private --force-publish",
+    "clean": "bash ./scripts/clean.sh",
+    "docker:build": "bash ./scripts/docker.sh build",
+    "docker:run": "bash ./scripts/docker.sh run",
+    "docker:bash": "bash ./scripts/docker.sh bash",
+    "docker:start": "bash ./scripts/docker.sh start",
+    "docker": "pnpm docker:build && pnpm docker:run && pnpm docker:bash",
+    "test": "bash ./scripts/test.sh",
+    "smokeTests": "bash ./scripts/smokeTests.sh",
+    "integrationTests": "bash ./scripts/integrationTests.sh"
+  },
+  "dependencies": {
+    "@elizaos/adapter-postgres": "workspace:*",
+    "@elizaos/client-telegram": "workspace:*",
+    "@elizaos/client-twitter": "workspace:*",
+    "@elizaos/client-discord": "workspace:*",
+    "@elizaos/core": "workspace:*",
+    "@elizaos/plugin-bootstrap": "workspace:*",
+    "@elizaos/plugin-image-generation": "workspace:*",
+    "@elizaos/plugin-node": "workspace:*",
+    "@elizaos/plugin-tee-verifiable-log": "workspace:*",
+    "@elizaos/plugin-tee-log": "workspace:*",
+    "@elizaos/plugin-tee": "workspace:*",
+    "@elizaos/plugin-sgx":"workspace:*",
+    "@tavily/core": "0.0.2",
+    "amqplib": "0.10.5",
+    "better-sqlite3": "11.5.0",
+    "fs": "0.0.1-security",
+    "net": "1.0.2",
+    "path": "0.12.7",
+    "readline": "1.3.0",
+    "url": "0.11.4",
+    "ws": "8.18.0",
+    "yargs": "17.7.2",
+    "@huggingface/transformers": "3.0.2",
+    "bignumber.js": "9.1.2"
+  },
+  "pnpm": {
+    "overrides": {
+        "onnxruntime-node": "1.20.1",
+        "viem": "2.21.58",
+        "@ai-sdk/provider": "1.0.6"
+    }
+  },
+  "engines": {
+      "node": "23.3.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@commitlint/cli": "18.6.1",
+    "@commitlint/config-conventional": "18.6.3",
+    "@types/jest": "^29.5.11",
+    "concurrently": "9.1.0",
+    "cross-env": "7.0.3",
+    "husky": "9.1.7",
+    "jest": "^29.7.0",
+    "lerna": "8.1.5",
+    "only-allow": "1.2.1",
+    "turbo": "2.3.3",
+    "typedoc": "0.26.11",
+    "typescript": "5.6.3",
+    "viem": "2.21.58",
+    "vite": "5.4.12",
+    "vitest": "2.1.5"
+  },
+  "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee",
+  "workspaces": [
+      "packages/*"
+  ]
+}

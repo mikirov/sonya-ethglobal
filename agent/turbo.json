@@ -1,0 +1,19 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "tasks": {
+        "check-types": {
+            "dependsOn": ["build"]
+        },
+        "@elizaos/agent#check-types": {
+            "dependsOn": []
+        },
+        "build": {
+            "outputs": ["dist/**"],
+            "dependsOn": ["^@elizaos/core#build"]
+        },
+        "dev": {
+            "persistent": true,
+            "cache": false
+        }
+    }
+}

@@ -1,0 +1,27 @@
+services:
+  sonya-db:
+    image: pgvector/pgvector:pg17 # PostgreSQL with pgvector support
+    container_name: sonya-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sonya
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+
+  # Adminer service
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: localhost:5434
+    depends_on:
+      - sonya-db
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata: # Stores data outside the container to ensure persistence

@@ -1,0 +1,3 @@
+actions:
+    - name: myCustomAction
+      path: ./custom_actions/myAction.ts
