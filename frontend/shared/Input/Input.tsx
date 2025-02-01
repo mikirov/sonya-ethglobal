@@ -2,7 +2,7 @@
 
 export const Input = ({ input, setInput }: { input: string; setInput: (input: string) => void }) => {
   return (
-    <div className="w-full relative bg-base-200 flex flex-col px-2">
+    <div className="w-full flex flex-col">
       <div className="flex justify-between items-center gap-2 bg-base-100 px-3 rounded-2xl">
         <input type="submit" hidden />
         <input

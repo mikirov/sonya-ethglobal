@@ -80,7 +80,7 @@ const Home: NextPage = () => {
   };
 
   return (
-    <main className="relative flex flex-col flex-1">
+    <main className="relative flex flex-col flex-1 h-full">
       {!authenticated ? (
         <div className="relative py-24 border bg-gradient-to-br from-base-200/95 via-base-200/90 to-base-200/80 rounded-[2.5rem] border-base-300/50 backdrop-blur-xl overflow-hidden">
           <div className="relative flex flex-col items-center justify-center max-w-4xl px-8 mx-auto ">

@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
-import { Chat } from "~~/Chat";
-import { Input } from "~~/entities/Input";
+import { Chat } from "~~/entities/Chat";
+import { Input } from "~~/shared/Input";
 import { MessageRole, MessageType } from "~~/shared/Message";
 import axiosInstance from "~~/utils/axiosInstance";
 
@@ -42,13 +42,13 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
   };
 
   return (
-    <div className="container px-4 py-16 mx-auto max-w-7xl flex flex-col h-full">
-      <div className="flex flex-col bg-foreground h-full items-center justify-end rounded-default overflow-hidden">
+    <div className="container px-8 py-3 pb-16 mx-auto flex flex-col gap-5 h-full">
+      <div className="overflow-hidden h-full">
         <Chat messages={messages} />
-        <form className="w-full" onSubmit={onSubmit}>
-          <Input input={input} setInput={setInput} />
-        </form>
       </div>
+      <form className="w-full" onSubmit={onSubmit}>
+        <Input input={input} setInput={setInput} />
+      </form>
     </div>
   );
 };
