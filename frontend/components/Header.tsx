@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { SwitchTheme } from "./SwitchTheme";
 import { usePrivy } from "@privy-io/react-auth";
 import { Bars3Icon } from "@heroicons/react/24/outline";
-import { FaucetButton, LoginButton } from "~~/components/scaffold-eth";
+import { LoginButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
@@ -69,7 +69,7 @@ export const Header = () => {
   );
 
   return (
-    <div className="sticky top-0 z-20 justify-between flex-shrink-0 min-h-0 px-0 shadow-md lg:static navbar bg-base-100 shadow-secondary sm:px-2">
+    <div className="sticky top-0 z-20 justify-between flex-shrink-0 min-h-0 px-0 shadow-md navbar bg-base-100 shadow-secondary sm:px-2">
       <div className="w-auto navbar-start lg:w-1/2">
         <div className="lg:hidden dropdown" ref={burgerMenuRef}>
           <label

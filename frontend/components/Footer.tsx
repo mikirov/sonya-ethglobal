@@ -5,7 +5,7 @@ import Link from "next/link";
  */
 export const Footer = () => {
   return (
-    <div className="min-h-0 px-1 py-2 bg-gradient-to-r from-base-200/95 to-base-200/80 backdrop-blur-sm">
+    <div className="fixed bottom-0 w-full min-h-0 px-1 py-2 bg-gradient-to-r from-base-200/95 to-base-200/80 backdrop-blur-sm">
       <div className="w-full">
         <div className="flex flex-col items-center justify-between w-full gap-6 p-2 px-4 md:flex-row md:gap-3">
           <div className="flex items-center">
