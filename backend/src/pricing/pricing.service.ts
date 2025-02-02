@@ -41,7 +41,7 @@ export class PricingService {
   public async getPriceFromPool(
     provider: ethers.JsonRpcProvider,
     poolAddress: string,
-    blockNumber?: number,
+    virtualsUSDPoolAddress: string,
   ): Promise<bn> {
     const poolContract = new ethers.Contract(
       poolAddress,
@@ -51,12 +51,46 @@ export class PricingService {
       provider,
     );
 
-    const price = await this.getPriceFromUniswapV2Pool(
+    const priceInVirtuals: bn = await this.getPriceFromUniswapV2Pool(
       poolContract,
       poolAddress,
     );
 
-    return price;
+
+    const virtualsPoolContract = new ethers.Contract(
+      virtualsUSDPoolAddress,
+      [
+        'function slot0() public view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)',
+      ],
+      provider,
+    );
+    const priceVirtualsToUSD = await this.getUniswapV3PriceFromPool(
+      virtualsPoolContract, virtualsUSDPoolAddress)
+
+    return priceInVirtuals.multipliedBy(priceVirtualsToUSD);
+
+  }
+
+  private calculatePriceFromSqrtPrice(sqrtPriceX96: bn): bn {
+    return sqrtPriceX96.dividedBy(new bn(2).pow(96)).pow(2);
+  }
+
+  private async getUniswapV3PriceFromPool(
+    poolContract: ethers.Contract,
+    poolAddress: string,
+  ): Promise<bn> {
+    try {
+      const slot0 = await poolContract.slot0();
+      this.logger.log(`Slot0: ${slot0}`);
+      const price = new bn(slot0[0]);
+      return this.calculatePriceFromSqrtPrice(price);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      throw new BadRequestException(
+        `Failed to fetch price for pool: ${poolAddress}`,
+        error,
+      );
+    }
   }
 
 }

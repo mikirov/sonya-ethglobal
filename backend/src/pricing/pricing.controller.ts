@@ -17,7 +17,7 @@ import { PriceResponseDto } from './dto/pricing-response.dto';
 export class PricingController {
   constructor(private readonly pricingService: PricingService) {}
 
-  @Get('sonya-virtuals')
+  @Get('sonya-usd')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get the Sonya AI (SONYA) to Virtuals Token price on Base',
@@ -28,12 +28,12 @@ export class PricingController {
     type: PriceResponseDto,
   })
   async getSonyaPriceInVirtuals(): Promise<PriceResponseDto> {
-    if(!process.env.RPC_URL || !process.env.TOKEN_POOL_ADDRESS) {
-      throw new Error('Missing RPC_URL or TOKEN_POOL_ADDRESS in the environment');
+    if(!process.env.RPC_URL || !process.env.TOKEN_POOL_ADDRESS || !process.env.VIRTUALS_POOL_ADDRESS) {
+      throw new Error('Missing RPC_URL or TOKEN_POOL_ADDRESS or VIRTUALS_POOL_ADDRESS in the environment');
     }
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     return {
-      price: (await this.pricingService.getPriceFromPool(provider, process.env.TOKEN_POOL_ADDRESS)).toString(),
+      price: (await this.pricingService.getPriceFromPool(provider, process.env.TOKEN_POOL_ADDRESS, process.env.VIRTUALS_POOL_ADDRESS)).toString(),
     };
   }
 }
