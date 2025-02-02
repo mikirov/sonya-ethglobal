@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   Logger,
+  // Logger,
 } from '@nestjs/common';
 import { ethers } from 'ethers';
 import bn from 'bignumber.js'; // Importing bignumber.js for precision control
@@ -18,23 +19,12 @@ export class PricingService {
 
   private async getPriceFromUniswapV2Pool(
     poolContract: ethers.Contract,
-    poolAddress: string,
-    blockNumber?: number,
+    poolAddress: string
   ): Promise<bn> {
     try {
-      const reserves = await poolContract.getReserves({
-        blockTag: blockNumber,
-      });
-      const reserves0 = new bn(reserves[0]).dividedBy(new bn(10).pow(18)); // divided by 10**6 to account for the 6 decimal places of USDT
-      const reserves1 = new bn(reserves[1]).dividedBy(new bn(10).pow(18)); // divided by 10**6 to account for the 6 decimal places of USDT
-      return reserves0.div(reserves1);
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      // in case of error, try fetching the latest block
-    }
-    try {
+      this.logger.log('Fetching latest block');
       const reserves = await poolContract.getReserves();
+      this.logger.log(`Reserves: ${reserves}`);
       const reserves0 = new bn(reserves[0]).div(new bn(10).pow(18)); // divided by 10**6 to account for the 6 decimal places of USDT
       const reserves1 = new bn(reserves[1]).div(new bn(10).pow(18)); // divided by 10**6 to account for the 6 decimal places of USDT
       return reserves0.div(reserves1);
@@ -56,7 +46,7 @@ export class PricingService {
     const poolContract = new ethers.Contract(
       poolAddress,
       [
-        'function getReserves() public view returns (uint128 _reserve0, uint128 _reserve1, uint32 _blockTimestampLast)',
+        'function getReserves() external view returns (uint256, uint256)',
       ],
       provider,
     );
@@ -64,7 +54,6 @@ export class PricingService {
     const price = await this.getPriceFromUniswapV2Pool(
       poolContract,
       poolAddress,
-      blockNumber,
     );
 
     return price;

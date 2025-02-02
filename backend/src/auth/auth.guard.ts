@@ -58,16 +58,4 @@ export class TokenAuthGuard implements CanActivate {
     // If none of the above validations passed, throw an unauthorized exception
     throw new UnauthorizedException('Invalid token');
   }
-
-  // Validate JWT issued by your application
-  async validateJwtToken(token: string): Promise<any> {
-    try {
-      const decoded = this.jwtService.verify(token, {
-        secret: this.configService.get('ACCESS_TOKEN_SECRET'),
-      });
-      return decoded; // If verification is successful, return the decoded payload
-    } catch (error) {
-      return null; // If verification fails, return null
-    }
-  }
 }
