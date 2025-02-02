@@ -21,9 +21,8 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
     setInput("");
     setIsLoading(true);
     try {
-      const apiResponse = await axiosInstance.post(`input/process-input`, {
+      const apiResponse = await axiosInstance.post(`input/text`, {
         input,
-        walletAddress,
       });
 
       const sonyaResponse: MessageType = {
@@ -45,7 +44,7 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
   };
 
   return (
-    <div className="h-[calc(100vh-124px)] container px-8 py-3 mx-auto flex flex-col gap-5">
+    <div className="h-[calc(100vh-164px)] md:h-[calc(100vh-124px)] container px-8 py-3 mx-auto flex flex-col gap-5">
       <div className="overflow-hidden h-full">
         <Chat messages={messages} />
       </div>
