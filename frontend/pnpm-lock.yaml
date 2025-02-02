@@ -41,6 +41,9 @@ dependencies:
   daisyui:
     specifier: 4.12.10
     version: 4.12.10(postcss@8.4.49)
+  eventemitter3:
+    specifier: ^5.0.1
+    version: 5.0.1
   js-cookie:
     specifier: ^3.0.5
     version: 3.0.5
@@ -62,6 +65,9 @@ dependencies:
   react:
     specifier: ~18.3.1
     version: 18.3.1
+  react-audio-voice-recorder:
+    specifier: ^2.2.0
+    version: 2.2.0(react-dom@18.3.1)(react@18.3.1)
   react-copy-to-clipboard:
     specifier: ~5.1.0
     version: 5.1.0(react@18.3.1)
@@ -760,6 +766,18 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
     dev: true
+
+  /@ffmpeg/ffmpeg@0.11.6:
+    resolution: {integrity: sha512-uN8J8KDjADEavPhNva6tYO9Fj0lWs9z82swF3YXnTxWMBoFLGq3LZ6FLlIldRKEzhOBKnkVfA8UnFJuvGvNxcA==}
+    engines: {node: '>=12.16.1'}
+    dependencies:
+      is-url: 1.2.4
+      node-fetch: 2.7.0(encoding@0.1.13)
+      regenerator-runtime: 0.13.11
+      resolve-url: 0.2.1
+    transitivePeerDependencies:
+      - encoding
+    dev: false
 
   /@floating-ui/core@1.6.9:
     resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
@@ -6322,6 +6340,10 @@ packages:
     dependencies:
       which-typed-array: 1.1.18
 
+  /is-url@1.2.4:
+    resolution: {integrity: sha512-ITvGim8FhRiYe4IQ5uHSkj7pVaPDrCTkNd3yq3cV7iZAcJdHTUMPMEHcqSOy9xZ9qFenQCvi+2wjH9a1nXqHww==}
+    dev: false
+
   /is-weakmap@2.0.2:
     resolution: {integrity: sha512-K5pXYOm9wqY1RgjpL3YTkF39tni1XajUIkawTLUo9EZEVUFga5gSQJF8nNS7ZwJQ02y+1YCNYcMh+HIf1ZqE+w==}
     engines: {node: '>= 0.4'}
@@ -7706,6 +7728,30 @@ packages:
       unpipe: 1.0.0
     dev: true
 
+  /react-audio-visualize@1.2.0(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-rfO5nmT0fp23gjU0y2WQT6+ZOq2ZsuPTMphchwX1PCz1Di4oaIr6x7JZII8MLrbHdG7UB0OHfGONTIsWdh67kQ==}
+    peerDependencies:
+      react: '>=16.2.0'
+      react-dom: '>=16.2.0'
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    dev: false
+
+  /react-audio-voice-recorder@2.2.0(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-Hq+143Zs99vJojT/uFvtpxUuiIKoLbMhxhA7qgxe5v8hNXrh5/qTnvYP92hFaE5V+GyoCXlESONa0ufk7t5kHQ==}
+    peerDependencies:
+      react: '>=16.2.0'
+      react-dom: '>=16.2.0'
+    dependencies:
+      '@ffmpeg/ffmpeg': 0.11.6
+      react: 18.3.1
+      react-audio-visualize: 1.2.0(react-dom@18.3.1)(react@18.3.1)
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /react-copy-to-clipboard@5.1.0(react@18.3.1):
     resolution: {integrity: sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==}
     peerDependencies:
@@ -7879,6 +7925,10 @@ packages:
       which-builtin-type: 1.2.1
     dev: true
 
+  /regenerator-runtime@0.13.11:
+    resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
+    dev: false
+
   /regenerator-runtime@0.14.1:
     resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
     dev: false
@@ -7927,6 +7977,11 @@ packages:
   /resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
     dev: true
+
+  /resolve-url@0.2.1:
+    resolution: {integrity: sha512-ZuF55hVUQaaczgOIwqWzkEcEidmlD/xl44x1UZnhOXcYuFN2S6+rcxpG+C1N3So0wvNI3DmJICUFfu2SxhBmvg==}
+    deprecated: https://github.com/lydell/resolve-url#deprecated
+    dev: false
 
   /resolve@1.22.10:
     resolution: {integrity: sha512-NPRy+/ncIMeDlTAsuqwKIiferiawhefFJtkNSW0qZJEqMEb+qBt/77B/jGeeek+F0uOeN05CDa6HXbbIgtVX4w==}
