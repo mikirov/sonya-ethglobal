@@ -65,7 +65,23 @@ module.exports = {
   theme: {
     extend: {
       boxShadow: { center: "0 0 12px -2px rgb(0 0 0 / 0.05)" },
-      animation: { "pulse-fast": "pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite" },
+      animation: {
+        "pulse-fast": "pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        blob: "blob 3s ease-in-out infinite",
+      },
+      keyframes: {
+        blob: {
+          "0%": {
+            borderRadius: "60% 40% 30% 70%/60% 30% 70% 40%",
+          },
+          "50%": {
+            borderRadius: "30% 60% 70% 40%/50% 60% 30% 60%",
+          },
+          "100%": {
+            borderRadius: "60% 40% 30% 70%/60% 30% 70% 40%",
+          },
+        },
+      },
     },
   },
 };

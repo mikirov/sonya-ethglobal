@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import classNames from "classnames";
 import { AnimatePresence, motion } from "motion/react";
 import { useAudioRecorder } from "react-audio-voice-recorder";
@@ -14,8 +14,18 @@ export const VoiceChat = ({
   setInput: (input: string) => void;
   isLoading: boolean;
 }) => {
+  const [tapped, setTapped] = useState(false);
   const { startRecording, stopRecording, recordingBlob, isRecording, recordingTime, mediaRecorder } =
     useAudioRecorder();
+
+  const toggleRecording = () => {
+    !tapped && setTapped(true);
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   useEffect(() => {
     if (!recordingBlob) return;
@@ -25,29 +35,45 @@ export const VoiceChat = ({
   }, [recordingBlob]);
 
   return (
-    <div className="w-full flex flex-col">
-      <div className="relative h-full w-full flex justify-center items-center">
+    <div className="w-full h-full flex flex-col">
+      <div className="relative cursor-pointer h-full flex justify-center items-center" onClick={toggleRecording}>
         <motion.div
-          className={classNames("rounded-full w-32 h-32 bg-black")}
+          className={classNames("rounded-full w-32 h-32 bg-accent animate-blob")}
           initial={{ scale: 1 }}
-          animate={isRecording ? { scale: 1.3 } : {}}
-          transition={isRecording ? { duration: 1, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" } : {}}
+          animate={isRecording ? { scale: 1.3 } : { scale: 1 }}
+          transition={{
+            duration: 3,
+            ease: "easeInOut",
+            type: "spring",
+            repeat: isRecording ? Infinity : 0,
+            repeatType: "reverse",
+          }}
         >
-          <AnimatePresence>
-            {isRecording && (
-              <motion.div
-                className={classNames("rounded-full w-32 h-32 bg-black/30")}
-                initial={{ scale: 1 }}
-                animate={{ scale: 1.3 }}
-                exit={{ scale: 1 }}
-                transition={{ duration: 1, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
-              />
-            )}
-          </AnimatePresence>
+          <motion.div
+            className={classNames("rounded-full w-32 h-32 bg-accent/30 animate-blob", {})}
+            initial={{ scale: 1 }}
+            animate={isRecording ? { scale: 1.3 } : { scale: 1 }}
+            transition={{
+              duration: 1,
+              ease: "easeInOut",
+              repeat: isRecording ? Infinity : 0,
+              repeatType: "reverse",
+            }}
+          />
         </motion.div>
+        <AnimatePresence>
+          {!tapped && (
+            <motion.span
+              className="absolute text-xs text-accent-content/40"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+            >
+              tap me
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
-      <button onClick={startRecording}>Start recording</button>
-      <button onClick={stopRecording}>Stop recording</button>
       {recordingTime}
     </div>
   );
