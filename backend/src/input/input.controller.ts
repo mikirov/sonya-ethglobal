@@ -9,6 +9,10 @@ import {
 import { ApiTags, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import axios from 'axios';
 import { config } from 'dotenv';
+import { TextResponseDto } from './dto/text-response.dto';
+import { TextRequestDto } from './dto/text-request.dto';
+import { TtsRequestDto } from './dto/tts-request.dto';
+import { TtsResponseDto } from './dto/tts-response.dto';
 
 config(); // Load environment variables from .env
 
@@ -25,6 +29,7 @@ export class InputController {
   @ApiResponse({
     status: 200,
     description: 'Input successfully processed by the agent.',
+    type: TextResponseDto,
   })
   @ApiResponse({
     status: 401,
@@ -34,8 +39,8 @@ export class InputController {
     status: 500,
     description: 'Error processing input.',
   })
-  @ApiBody({ type: Object, description: 'Process input DTO'})
-  async processInput(@Body() processInputDto: { input: string }): Promise<any> {
+  @ApiBody({ type: TextRequestDto, description: 'Process input DTO'})
+  async processInput(@Body() processInputDto: TextRequestDto): Promise<TextResponseDto> {
     this.logger.log('Processing input:', processInputDto);
     const { input } = processInputDto;
     const agentUrl = process.env.AGENT_URL;
@@ -104,10 +109,10 @@ export class InputController {
     description: 'Error processing text-to-speech.',
   })
   @ApiBody({
-    type: Object,
+    type: TtsRequestDto,
     description: 'Input text for TTS',
   })
-  async textToSpeech(@Body() body: { text: string }): Promise<any> {
+  async textToSpeech(@Body() body: TtsRequestDto): Promise<TtsResponseDto> {
     const { text } = body;
     if (!text) {
       throw new HttpException('No text provided', HttpStatus.BAD_REQUEST);
@@ -146,7 +151,6 @@ export class InputController {
       this.logger.log('TTS processing completed.');
 
       return {
-        response: text, // Optionally, you can include the processed text from ChatGPT if desired.
         audio: `data:audio/mpeg;base64,${audioBase64}`,
       };
     } catch (error) {
