@@ -6,9 +6,8 @@ forge clean && forge build
 ## Deploy using Foundry -> Sepolia and Mainnet
 ```
 source .env
-forge script script/deploy-token.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY --verify
-forge script script/deploy-deposit.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY --verify
-forge script script/deploy-vesting.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY --verify
+forge script script/deploy-staking.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY --verify
+forge script script/deploy-marketplace.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY --verify
 ```
 
 ## Deploy using Foundry -> zksync

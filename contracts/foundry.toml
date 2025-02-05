@@ -9,4 +9,4 @@ extra_output = ["storageLayout"]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 
-etherscan_api_key = "ADQZ9CT1ANB5V1JKQR277EEY46BVIR5EZX"
+etherscan_api_key = "MR8K6UABIY23W5Z6VTKW5IDNDUI981QBD3"

@@ -21,7 +21,7 @@ contract DeployVesting is Script {
         vm.startBroadcast();
 
         // Instantiate the token contract address (replace with your token address)
-        ERC20Permit token = ERC20Permit(0x31bCEaf326759672bD9C72c6D465bDEEC0C188A8);
+        ERC20Permit token = ERC20Permit(0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D);
 
         // Deploy the Vesting contract directly (non-upgradable)
         Vesting vesting = new Vesting(token);
