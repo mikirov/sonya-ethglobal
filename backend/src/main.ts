@@ -20,7 +20,7 @@ async function bootstrap() {
     .addTag('Verification')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('sonya/api', app, document);
 
   // Get the port from .env or default to 3006
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3006;
