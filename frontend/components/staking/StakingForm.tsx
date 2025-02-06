@@ -60,7 +60,7 @@ export const StakingForm = ({
 
         <button
           onClick={onStakeSubmit}
-          disabled={insufficientBalance}
+          disabled={insufficientBalance || !stakingAmount}
           className="w-full transition-all btn btn-primary btn-sm hover:brightness-105"
         >
           {insufficientBalance ? "Insufficient Balance" : "Stake SONYA"}

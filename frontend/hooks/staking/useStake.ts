@@ -1,36 +1,69 @@
 import { useState } from "react";
 import { parseEther } from "viem";
+import { useAccount, useSignTypedData } from "wagmi";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
-const sonyaTokenAddress = externalContracts[8453].sonyaToken.address;
+const domain = {
+  name: "SONYA Token",
+  version: "1",
+  chainId: 8453,
+  verifyingContract: externalContracts[8453].sonyaToken.address,
+} as const;
+
+const types = {
+  Permit: [
+    { name: "owner", type: "address" },
+    { name: "spender", type: "address" },
+    { name: "value", type: "uint256" },
+    { name: "nonce", type: "uint256" },
+    { name: "deadline", type: "uint256" },
+  ],
+} as const;
 
 export const useStake = () => {
   const [stakingAmount, setStakingAmount] = useState("");
-
-  const { writeContractAsync: stake } = useScaffoldWriteContract({
-    contractName: "staking",
-  });
+  const { address } = useAccount();
 
   const { writeContractAsync: stakeWithPermit } = useScaffoldWriteContract({
     contractName: "staking",
   });
 
+  const { signTypedDataAsync } = useSignTypedData();
+
   const handleStake = async (amount: string) => {
-    if (!amount) return;
+    if (!amount || !address) return;
 
     try {
-      const amountInWei = parseEther(amount);
+      const deadline = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hour from now
+      const value = parseEther(amount);
 
-      // TODO: Add deadline and signature for Permit
-      const deadline = Math.floor(Date.now() / 1000) + 1000 * 60 * 60 * 24 * 365; // 1 year from now
-      const v = 27; // Standard EIP-2612 signature
-      const r = "0x" + "0".repeat(64); // Empty r value
-      const s = "0x" + "0".repeat(64); // Empty s value
+      const message = {
+        owner: address,
+        spender: externalContracts[8453].staking.address,
+        value,
+        nonce: BigInt(0),
+        deadline: BigInt(deadline),
+      };
+
+      const signature = await signTypedDataAsync({
+        domain,
+        types,
+        primaryType: "Permit",
+        message,
+      });
+
+      if (!signature) throw new Error("Failed to sign");
+
+      const { r, s, v } = {
+        r: signature.slice(0, 66),
+        s: "0x" + signature.slice(66, 130),
+        v: parseInt(signature.slice(130, 132), 16),
+      };
 
       await stakeWithPermit({
         functionName: "stakeWithPermit",
-        args: [amountInWei, deadline, v, r, s],
+        args: [value, deadline, v, r, s],
       } as never);
     } catch (error) {
       console.error("Error staking tokens:", error);
