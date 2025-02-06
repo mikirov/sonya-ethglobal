@@ -1,74 +1,32 @@
 "use client";
 
-import { useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
-import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { StakingForm, StakingStats, WelcomeCard } from "~~/components/staking";
-import deployedContracts from "~~/contracts/deployedContracts";
+import externalContracts from "~~/contracts/externalContracts";
 import { useWatchBalance } from "~~/hooks/scaffold-eth";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useStake } from "~~/hooks/staking/useStake";
 
-const sonyaTokenAddress = deployedContracts[8453].sonyaToken.address;
-const rSonyaTokenAddress = deployedContracts[8453].rSonyaToken.address;
+const sonyaTokenAddress = externalContracts[8453].sonyaToken.address;
+const rSonyaTokenAddress = externalContracts[8453].rSonyaToken.address;
 
 const StakingPage = () => {
   const { address } = useAccount();
   const { login, authenticated } = usePrivy();
-  const [stakingAmount, setStakingAmount] = useState("");
-  const [lockupPeriod, setLockupPeriod] = useState("1");
   const { data: balance } = useWatchBalance({ address, token: sonyaTokenAddress });
   const { data: rSonyaBalance } = useWatchBalance({ address, token: rSonyaTokenAddress });
 
-  // Setup contract writes
-  const { writeContractAsync: approveToken } = useScaffoldWriteContract({
-    contractName: "sonyaToken",
-  });
-
-  const { writeContractAsync: stake } = useScaffoldWriteContract({
-    contractName: "staking",
-  });
-
-  const handleStake = async (amount: string) => {
-    if (!address || !amount) return;
-
-    try {
-      const amountInWei = parseEther(amount);
-
-      await approveToken({
-        functionName: "approve",
-        args: [sonyaTokenAddress, amountInWei],
-      } as never);
-
-      await stake({
-        functionName: "stake",
-        args: [amountInWei],
-      } as never);
-    } catch (error) {
-      console.error("Error staking tokens:", error);
-      throw error;
-    }
-  };
+  const { stakingAmount, setStakingAmount, handleStakeSubmit, setMaxAmount } = useStake();
 
   // Mock data
   const mockData = {
     totalStaked: "1234567",
     userStaked: rSonyaBalance?.formatted,
-    veSONYA: "750",
     userBalance: balance?.formatted,
   };
 
-  const handleStakeSubmit = async () => {
-    try {
-      await handleStake(stakingAmount);
-      setStakingAmount("");
-    } catch (error) {
-      console.error("Failed to stake:", error);
-    }
-  };
-
-  const setMaxAmount = () => {
-    setStakingAmount(mockData.userBalance || "0");
+  const handleSetMaxAmount = () => {
+    setMaxAmount(mockData.userBalance || "0");
   };
 
   const insufficientBalance = Number(stakingAmount) > Number(mockData.userBalance);
@@ -79,15 +37,11 @@ const StakingPage = () => {
         <div className="text-center">
           <h1 className="mb-3 text-4xl font-extrabold tracking-tight text-center text-base-content">Stake SONYA</h1>
           <p className="mb-8 text-base text-center text-base-content/80">
-            Stake your SONYA tokens to earn veSONYA and participate in governance
+            Stake your SONYA tokens to earn rSONYA and participate in governance
           </p>
         </div>
 
-        <StakingStats
-          totalStaked={mockData.totalStaked}
-          userStaked={mockData.userStaked || "0"}
-          veSONYA={mockData.veSONYA}
-        />
+        <StakingStats totalStaked={mockData.totalStaked} userStaked={mockData.userStaked || "0"} />
 
         <div className="max-w-xl mx-auto">
           {!authenticated ? (
@@ -96,11 +50,9 @@ const StakingPage = () => {
             <StakingForm
               stakingAmount={stakingAmount}
               setStakingAmount={setStakingAmount}
-              lockupPeriod={lockupPeriod}
-              setLockupPeriod={setLockupPeriod}
               userBalance={mockData.userBalance || "0"}
               onStakeSubmit={handleStakeSubmit}
-              onSetMaxAmount={setMaxAmount}
+              onSetMaxAmount={handleSetMaxAmount}
               insufficientBalance={insufficientBalance}
             />
           )}

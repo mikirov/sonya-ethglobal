@@ -3,8 +3,6 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 interface StakingFormProps {
   stakingAmount: string;
   setStakingAmount: (value: string) => void;
-  lockupPeriod: string;
-  setLockupPeriod: (value: string) => void;
   userBalance: string;
   onStakeSubmit: () => Promise<void>;
   onSetMaxAmount: () => void;
@@ -14,8 +12,6 @@ interface StakingFormProps {
 export const StakingForm = ({
   stakingAmount,
   setStakingAmount,
-  lockupPeriod,
-  setLockupPeriod,
   userBalance,
   onStakeSubmit,
   onSetMaxAmount,
@@ -60,23 +56,6 @@ export const StakingForm = ({
               </a>
             )}
           </label>
-        </div>
-
-        <div className="form-control">
-          <label className="label">
-            <span className="text-sm font-medium label-text">Lock Period</span>
-          </label>
-          <select
-            className="w-full select select-sm focus:outline-none focus:ring-primary border-primary"
-            value={lockupPeriod}
-            onChange={e => setLockupPeriod(e.target.value)}
-          >
-            {[1, 2, 3, 4].map(year => (
-              <option key={year} value={year}>
-                {year} {year === 1 ? "Year" : "Years"}
-              </option>
-            ))}
-          </select>
         </div>
 
         <button
