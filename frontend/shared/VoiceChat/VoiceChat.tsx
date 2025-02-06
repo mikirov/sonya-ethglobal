@@ -9,10 +9,12 @@ export const VoiceChat = ({
   input,
   setInput,
   isLoading,
+  submit,
 }: {
   input: string;
   setInput: (input: string) => void;
   isLoading: boolean;
+  submit: () => void;
 }) => {
   const [tapped, setTapped] = useState(false);
   const { startRecording, stopRecording, recordingBlob, isRecording, recordingTime, mediaRecorder } =
@@ -22,6 +24,7 @@ export const VoiceChat = ({
     !tapped && setTapped(true);
     if (isRecording) {
       stopRecording();
+      submit();
     } else {
       startRecording();
     }

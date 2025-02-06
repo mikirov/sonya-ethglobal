@@ -1,14 +1,15 @@
+import { BACKEND_URL } from "./constants";
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL, // Base URL from environment variables
+  baseURL: BACKEND_URL, // Base URL from environment variables
   headers: {
     "Content-Type": "application/json",
   },
   maxBodyLength: Infinity, // Allow large responses
   maxContentLength: Infinity, // Allow large content
-  httpAgent: new (require('http').Agent)({ keepAlive: true, insecureHTTPParser: true }),
-  httpsAgent: new (require('https').Agent)({ keepAlive: true, insecureHTTPParser: true }),
+  httpAgent: new (require("http").Agent)({ keepAlive: true, insecureHTTPParser: true }),
+  httpsAgent: new (require("https").Agent)({ keepAlive: true, insecureHTTPParser: true }),
 });
 
 // Add a method to set the Authorization token dynamically
@@ -22,26 +23,26 @@ export const setAuthToken = (token: string | null) => {
 
 // Add a request interceptor (optional for logging/debugging)
 axiosInstance.interceptors.request.use(
-  (config) => {
+  config => {
     console.log("Request made with config:", config);
     return config;
   },
-  (error) => {
+  error => {
     console.error("Error in request:", error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Add a response interceptor (optional for logging/debugging)
 axiosInstance.interceptors.response.use(
-  (response) => {
+  response => {
     console.log("Response received:", response);
     return response;
   },
-  (error) => {
+  error => {
     console.error("Error in response:", error);
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

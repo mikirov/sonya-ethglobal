@@ -7,6 +7,7 @@ import classNames from "classnames";
 import { motion } from "motion/react";
 
 export const Message = ({ role, content, isLast }: MessageProps) => {
+  console.log("🚀 ~ Message ~ role:", role);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export const Message = ({ role, content, isLast }: MessageProps) => {
     <motion.div
       ref={ref}
       className={classNames("flex gap-2 items-center rounded-2xl bg-base-300 p-2", {
-        "bg-accent": !isUserMessage,
+        "!bg-accent": !isUserMessage,
       })}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -42,10 +43,10 @@ export const Message = ({ role, content, isLast }: MessageProps) => {
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          className="lucide lucide-user"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="lucide lucide-user aspect-square !w-8 !h-8 flex-shrink-0"
         >
           <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />

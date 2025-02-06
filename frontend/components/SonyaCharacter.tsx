@@ -15,10 +15,21 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [view, setView] = useState<"text" | "voice">("text");
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsSpeaking(false);
+    }
+  };
+
+  const handleSend = async () => {
+    stopAudio();
+
     setMessages([...messages, { role: MessageRole.User, content: input }]);
     setInput("");
     setIsLoading(true);
@@ -32,17 +43,29 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
         content: apiResponse.data.response,
       };
 
+      const voiceResponse = await axiosInstance.post(`input/tts-chatgpt`, {
+        text: apiResponse.data.response,
+      });
+
       setMessages(prev => [...prev, sonyaResponse]);
 
-      if (apiResponse.data.audio) {
-        const audioElement = new Audio(apiResponse.data.audio);
-        audioElement.play();
+      if (voiceResponse.data.audio) {
+        audioRef.current = new Audio(voiceResponse.data.audio);
+        audioRef.current.onplay = () => setIsSpeaking(true);
+        audioRef.current.onended = () => setIsSpeaking(false);
+        audioRef.current.onpause = () => setIsSpeaking(false);
+        audioRef.current.play();
       }
     } catch (error) {
       console.error("Error sending input:", error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    await handleSend();
   };
 
   return (
@@ -54,7 +77,7 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
       ) : (
         <div className="overflow-hidden h-full">
           <button onClick={() => setView("text")}>Back to text</button>
-          <VoiceChat input={input} setInput={setInput} isLoading={isLoading} />
+          <VoiceChat input={input} setInput={setInput} isLoading={isLoading} submit={handleSend} />
         </div>
       )}
       <form className="w-full" onSubmit={onSubmit}>

@@ -1,8 +1,8 @@
 import { Message, MessageType } from "~~/shared/Message";
 
-export const Chat = ({ messages, toggleToVoice }: { messages: MessageType[], toggleToVoice: () => void }) => {
+export const Chat = ({ messages, toggleToVoice }: { messages: MessageType[]; toggleToVoice: () => void }) => {
   return (
-    <div className="w-full h-full flex flex-col gap-2 rounded-default overflow-y-auto pr-3">
+    <div className="w-full h-full flex flex-col gap-3 py-3 rounded-default overflow-y-auto pr-3">
       {messages.length > 0 ? (
         messages.map((message, index) => <Message key={index} {...message} isLast={index === messages.length - 1} />)
       ) : (
