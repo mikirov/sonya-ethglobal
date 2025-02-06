@@ -5,14 +5,22 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+  Req,
 } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { Response } from 'express';
+import { ApiTags, ApiResponse, ApiBody, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import axios from 'axios';
 import { config } from 'dotenv';
 import { TextResponseDto } from './dto/text-response.dto';
 import { TextRequestDto } from './dto/text-request.dto';
 import { TtsRequestDto } from './dto/tts-request.dto';
 import { TtsResponseDto } from './dto/tts-response.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as FormData from 'form-data';
+import { InputService } from './input.service';
 
 config(); // Load environment variables from .env
 
@@ -20,6 +28,8 @@ config(); // Load environment variables from .env
 @Controller('input')
 export class InputController {
   private readonly logger = new Logger(InputController.name);
+
+  constructor(private readonly inputService: InputService) {}
 
   /**
    * Existing endpoint for processing input text.
@@ -113,49 +123,160 @@ export class InputController {
     description: 'Input text for TTS',
   })
   async textToSpeech(@Body() body: TtsRequestDto): Promise<TtsResponseDto> {
-    const { text } = body;
+    const { text, type = 'mp3' } = body;
     if (!text) {
       throw new HttpException('No text provided', HttpStatus.BAD_REQUEST);
     }
 
+    // Use the service to convert text to speech (non-streaming)
+    const audioBuffer = await this.inputService.convertTextToSpeech(text, false, type);
+    const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+    this.logger.log('TTS processing completed.');
+    return {
+      audio: `data:audio/${type};base64,${audioBase64}`,
+    };
+  }
+
+  /**
+   * New endpoint for converting text to speech using OpenAI's TTS API.
+   * This endpoint accepts text, sends it to the OpenAI text-to-speech API,
+   * and streams the resulting audio data in chunks to the client.
+   */
+  @ApiBearerAuth()
+  @Post('tts-chatgpt-stream')
+  @ApiResponse({
+    status: 200,
+    description: 'Text processed and audio streamed for text-to-speech.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error processing text-to-speech streaming.',
+  })
+  @ApiBody({
+    type: TtsRequestDto,
+    description: 'Input text for TTS',
+  })
+  async streamTextToSpeech(@Body() body: TtsRequestDto, @Res() res: Response) {
+    const { text, type = 'mp3' } = body;
+    if (!text) {
+      throw new HttpException('No text provided', HttpStatus.BAD_REQUEST);
+    }
     try {
-      const openaiApiKey = process.env.OPENAI_API_KEY;
-      if (!openaiApiKey) {
-        throw new HttpException('OPENAI_API_KEY is not configured', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-
-      // Construct the request payload based on OpenAI's Text-to-Speech API documentation.
-      // Adjust parameters such as "voice" and "model" as needed.
-      const payload = {
-        input: text,
-        voice: process.env.TTS_VOICE || "nova", // Specify a default voice or load from .env
-        model: process.env.TTS_MODEL || "tts-1", 
-      };
-
-      // Call OpenAI's text-to-speech API.
-      const response = await axios.post('https://api.openai.com/v1/audio/speech', payload, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiApiKey}`,
-        },
-        responseType: 'arraybuffer', // Get binary audio data
-      });
-
-      if (response.status !== 200) {
-        throw new HttpException(`TTS API error: ${response.statusText}`, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-
-      // Convert binary data to base64
-      const audioBase64 = Buffer.from(response.data).toString('base64');
-
-      this.logger.log('TTS processing completed.');
-
-      return {
-        audio: `data:audio/mpeg;base64,${audioBase64}`,
-      };
+      const ttsStream = await this.inputService.convertTextToSpeech(text, true, type);
+      res.setHeader('Content-Type', `audio/${type}`);
+      ttsStream.pipe(res);
+      this.logger.log('Streaming TTS audio to client.');
     } catch (error) {
-      this.logger.error('Error in text-to-speech processing:', error);
-      throw new HttpException('Error processing text-to-speech', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.logger.error('Error in streaming text-to-speech processing:', error);
+      throw new HttpException('Error processing text-to-speech streaming', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * New endpoint for speech-to-text transcription using OpenAI's Whisper API.
+   * This endpoint accepts an audio file (multipart/form-data) and returns the transcribed text.
+   */
+  @ApiBearerAuth()
+  @Post('speech-to-text')
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 200,
+    description: 'Audio transcribed to text.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error processing speech-to-text transcription.',
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async speechToText(@UploadedFile() file: Express.Multer.File): Promise<TextResponseDto> {
+    if (!file) {
+      throw new HttpException('No speech file provided', HttpStatus.BAD_REQUEST);
+    }
+    const transcription = await this.inputService.transcribeSpeech(file);
+    return {
+      response: transcription.text,
+    };
+  }
+
+  /**
+   * New endpoint for speech-to-speech conversion using the input service.
+   * This endpoint accepts an audio file, transcribes it to text, then converts the transcribed text back to speech.
+   */
+  @ApiBearerAuth()
+  @Post('speech-to-speech')
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 200,
+    description: 'Speech converted to speech.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error processing speech-to-speech conversion.',
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async speechToSpeech(@UploadedFile() file: Express.Multer.File): Promise<TtsResponseDto> {
+    if (!file) {
+      throw new HttpException('No speech file provided', HttpStatus.BAD_REQUEST);
+    }
+
+    // Transcribe the speech to text
+    const transcription = await this.inputService.transcribeSpeech(file);
+    const text = transcription.text;
+
+    // Convert the transcribed text back to speech (non-streaming)
+    const audioBuffer = await this.inputService.convertTextToSpeech(text, false);
+    const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+
+    return {
+      audio: `data:audio/mpeg;base64,${audioBase64}`,
+    };
+  }
+
+  /**
+   * New endpoint for speech-to-speech streaming conversion using the input service.
+   * This endpoint accepts an audio file, transcribes it to text, then converts the transcribed text back to speech in a streaming manner.
+   */
+  @ApiBearerAuth()
+  @Post('speech-to-speech-stream')
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 200,
+    description: 'Speech converted to streamed speech.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error processing speech-to-speech streaming conversion.',
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async speechToSpeechStream(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: TtsRequestDto,
+    @Res() res: Response,
+    @Body() body: any,
+  ): Promise<void> {
+    const type = body.type || 'mp3';
+    if (!file) {
+      throw new HttpException('No speech file provided', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      // Transcribe the speech to text
+      const transcription = await this.inputService.transcribeSpeech(file);
+      const text = transcription.text;
+
+      // Convert the transcribed text back to speech in streaming mode
+      const ttsStream = await this.inputService.convertTextToSpeech(text, true, type);
+
+      // Set proper content type header for the streaming audio
+      res.setHeader('Content-Type', `audio/${type}`);
+
+      // Pipe the TTS stream to the client
+      ttsStream.pipe(res);
+
+      this.logger.log('Streaming speech-to-speech audio to client.');
+    } catch (error) {
+      this.logger.error('Error in speech-to-speech streaming conversion:', error);
+      throw new HttpException('Error processing speech-to-speech streaming conversion', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
