@@ -3,7 +3,7 @@
 pragma solidity 0.8.25;
 
 import "forge-std/Script.sol";
-import {SonyaToken} from "../src/SonyaToken.sol";
+import {usdSonyaToken} from "../src/usdSonyaToken.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DeploySonyaToken is Script {
@@ -19,12 +19,11 @@ contract DeploySonyaToken is Script {
         vm.startBroadcast();
 
         // Deploy the HistoriToken
-        SonyaToken token = new SonyaToken();
+        usdSonyaToken token = new usdSonyaToken();
 
         vm.stopBroadcast();
 
         // Log the deployed token address and the chain ID
-        console.log("Deployed SonyaToken at address:", address(token));
-        console.log("Chain ID:", block.chainid);
+        console.log("Deployed $usdSonyaToken at address:", address(token));
     }
 }

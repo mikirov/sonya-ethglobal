@@ -16,6 +16,7 @@ contract ERC20PermitMock is ERC20Permit {
 contract StakingTest is Test {
     Staking public stakingContract;
     ERC20Permit public tokenPermit;
+    ERC20Permit public veTokenPermit;
 
     SigUtils internal sigUtils;
 
@@ -28,7 +29,7 @@ contract StakingTest is Test {
     function setUp() public {
         // Deploy MockToken and Deposit contract
         tokenPermit = new ERC20PermitMock();
-
+        veTokenPermit = new ERC20PermitMock();
         sigUtils = new SigUtils(tokenPermit.DOMAIN_SEPARATOR());
 
         ownerPrivateKey = 0xA11CE;
@@ -37,7 +38,7 @@ contract StakingTest is Test {
         owner = vm.addr(ownerPrivateKey);
         spender = vm.addr(spenderPrivateKey);
 
-        stakingContract = new Staking(tokenPermit);
+        stakingContract = new Staking(tokenPermit, veTokenPermit);
         
         // Initialize Deposit contract
                 // Distribute tokens to users

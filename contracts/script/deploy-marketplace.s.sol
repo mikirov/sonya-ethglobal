@@ -24,17 +24,13 @@ contract DeployMarketplace is Script {
         // USDT token on Base:
         address usdtAddress = 0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2;
         // Sonya token (update if your Sonya token address changes):
-        address sonyaTokenAddress = 0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D;
+        address usdSonyaTokenAddress = vm.envAddress("USDSONYATOKEN_ADDRESS");
 
         // Deploy the Marketplace contract with the three required token addresses.
-        Marketplace marketplace = new Marketplace(usdcAddress, usdtAddress, sonyaTokenAddress);
+        Marketplace marketplace = new Marketplace(usdcAddress, usdtAddress, usdSonyaTokenAddress);
 
         // Log deployment details.
         console2.log("Deployed Marketplace Contract at address:", address(marketplace));
-        console2.log("USDC token address:", usdcAddress);
-        console2.log("USDT token address:", usdtAddress);
-        console2.log("Sonya token address:", sonyaTokenAddress);
-        console2.log("Chain ID:", block.chainid);
 
         vm.stopBroadcast();
     }

@@ -23,13 +23,16 @@ contract DeployStaking is Script {
         // Instantiate the token contract (replace with your token address)
         ERC20Permit token = ERC20Permit(0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D);
 
+        address rSonyaTokenAddress = vm.envAddress("RSONYATOKEN_ADDRESS");
+
+        // Create an instance of the veSONYA token.
+        ERC20Permit rSonyaToken = ERC20Permit(rSonyaTokenAddress);
+        
         // Deploy the Staking contract (non-upgradable) with the token as parameter
-        Staking staking = new Staking(token);
+        Staking staking = new Staking(token, rSonyaToken);
 
         // Log the deployed contract address, token address, and chain ID
         console2.log("Deployed Staking Contract at address:", address(staking));
-        console2.log("Token address:", address(token));
-        console2.log("Chain ID:", block.chainid);
 
         vm.stopBroadcast();
     }
