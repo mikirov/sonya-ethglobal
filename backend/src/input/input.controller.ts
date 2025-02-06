@@ -12,14 +12,12 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiResponse, ApiBody, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
-import axios from 'axios';
 import { config } from 'dotenv';
 import { TextResponseDto } from './dto/text-response.dto';
 import { TextRequestDto } from './dto/text-request.dto';
 import { TtsRequestDto } from './dto/tts-request.dto';
 import { TtsResponseDto } from './dto/tts-response.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as FormData from 'form-data';
 import { InputService } from './input.service';
 
 config(); // Load environment variables from .env
