@@ -4,19 +4,23 @@ import { useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { useWatchBalance } from "~~/hooks/scaffold-eth";
+
+const sonyaTokenAddress = "0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D";
 
 const StakingPage = () => {
-  const { address } = useAccount();
-  const { login, authenticated } = usePrivy();
+  const { address, chain } = useAccount();
+  const { login, authenticated} = usePrivy();
   const [stakingAmount, setStakingAmount] = useState("");
   const [lockupPeriod, setLockupPeriod] = useState("1");
+  const { data: balance } = useWatchBalance({ address, token: sonyaTokenAddress });
 
   // Mock data
   const mockData = {
     totalStaked: "1234567",
     userStaked: "100000",
     veSONYA: "750",
-    userBalance: "0",
+    userBalance: balance?.formatted,
   };
 
   const formatNumber = (value: string) => {
@@ -38,6 +42,10 @@ const StakingPage = () => {
 
   const handleStake = async () => {
     console.log(`Staking ${stakingAmount} SONYA for ${lockupPeriod} years`);
+  };
+
+  const setMaxAmount = () => {
+    setStakingAmount(mockData.userBalance || "0");
   };
 
   const insufficientBalance = Number(stakingAmount) > Number(mockData.userBalance);
@@ -111,13 +119,19 @@ const StakingPage = () => {
                     <input
                       type="number"
                       placeholder="0.0"
-                      className="w-full pr-16 border input input-sm focus:outline-none focus:ring-primary border-primary"
+                      className="w-full pr-24 border input input-sm focus:outline-none focus:ring-primary border-primary"
                       value={stakingAmount}
                       onChange={e => setStakingAmount(e.target.value)}
                     />
-                    <span className="absolute text-xs font-medium transform -translate-y-1/2 right-4 top-1/2 text-base-content/60">
-                      SONYA
-                    </span>
+                    <div className="absolute transform -translate-y-1/2 right-4 top-1/2">
+                      <button
+                        onClick={setMaxAmount}
+                        className="px-2 mr-1 text-xs font-semibold text-primary hover:text-primary/80"
+                      >
+                        MAX
+                      </button>
+                      <span className="text-xs font-medium text-base-content/60">SONYA</span>
+                    </div>
                   </div>
                   <label className="label">
                     <span className="text-xs label-text-alt">Balance: {mockData.userBalance} SONYA</span>

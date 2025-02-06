@@ -4,6 +4,27 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  marketplace: {
+    address: "0xe25D62ddC835EE16a1d6088F301539D2FEc13Fca",
+    chainId: 8453,
+  },
+  staking: {
+    address: "0xe7Cca1381218fF907447D68714FAfcA74feF6273",
+    chainId: 8453,
+  },
+  sonyaToken: {
+    address: "0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D",
+    chainId: 8453,
+  },
+  rSonya: {
+    address: "0x6fDbf57c09a7f75c354BEE3769b6A347ebcD3b54",
+    chainId: 8453,
+  },
+  usdSonya: {
+    address: "0x6fB55CD0230a98c7ed32ccD9B0FC7e6f4478eE12",
+    chainId: 8453,
+  },
+} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
