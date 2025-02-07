@@ -1,31 +1,41 @@
+import { useEffect } from "react";
+import { useAccount } from "wagmi";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import externalContracts from "~~/contracts/externalContracts";
+import { useWatchBalance } from "~~/hooks/scaffold-eth";
+import { useStake } from "~~/hooks/staking/useStake";
+import { useTokenApproval } from "~~/hooks/staking/useTokenApproval";
 
-interface StakingFormProps {
-  stakingAmount: string;
-  setStakingAmount: (value: string) => void;
-  userBalance: string;
-  onStakeSubmit: () => Promise<void>;
-  onApproveSubmit: () => Promise<void>;
-  onSetMaxAmount: () => void;
-  insufficientBalance: boolean;
-  isApproving: boolean;
-  isStaking: boolean;
-  hasAllowance: boolean;
-}
+export const StakingForm = () => {
+  const { address } = useAccount();
+  const sonyaTokenAddress = externalContracts[8453].sonyaToken.address;
+  const { data: userBalance } = useWatchBalance({ address, token: sonyaTokenAddress });
 
-export const StakingForm = ({
-  stakingAmount,
-  setStakingAmount,
-  userBalance,
-  onStakeSubmit,
-  onApproveSubmit,
-  onSetMaxAmount,
-  insufficientBalance,
-  isApproving,
-  isStaking,
-  hasAllowance,
-}: StakingFormProps) => {
+  const { stakingAmount, setStakingAmount, handleStake, setMaxAmount, isStaking } = useStake();
+
+  const { isApproving, checkAllowance, approveToken, hasAllowance } = useTokenApproval(
+    "sonyaToken",
+    externalContracts[8453].staking.address,
+  );
+
+  const insufficientBalance = Number(stakingAmount) > Number(userBalance?.formatted);
   const isInputValid = stakingAmount && !insufficientBalance;
+
+  // Check allowance when amount changes
+  useEffect(() => {
+    if (stakingAmount) {
+      checkAllowance(stakingAmount);
+    }
+  }, [stakingAmount, checkAllowance]);
+
+  const handleApprove = async () => {
+    if (!stakingAmount || !address) return;
+    try {
+      await approveToken(stakingAmount);
+    } catch (error) {
+      console.error("Error approving tokens:", error);
+    }
+  };
 
   return (
     <div className="p-6 transition-all rounded-2xl bg-base-100 hover:shadow-lg">
@@ -44,7 +54,7 @@ export const StakingForm = ({
             />
             <div className="absolute transform -translate-y-1/2 right-4 top-1/2">
               <button
-                onClick={onSetMaxAmount}
+                onClick={() => setMaxAmount(userBalance?.formatted || "0")}
                 className="px-2 mr-1 text-xs font-semibold text-primary hover:text-primary/80"
               >
                 MAX
@@ -53,7 +63,7 @@ export const StakingForm = ({
             </div>
           </div>
           <label className="label">
-            <span className="text-xs label-text-alt">Balance: {userBalance} SONYA</span>
+            <span className="text-xs label-text-alt">Balance: {userBalance?.formatted} SONYA</span>
             {insufficientBalance && (
               <a
                 href="https://app.virtuals.io/prototypes/0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D"
@@ -71,7 +81,7 @@ export const StakingForm = ({
         <div className="flex flex-col gap-2">
           {!hasAllowance && (
             <button
-              onClick={onApproveSubmit}
+              onClick={handleApprove}
               disabled={!isInputValid || isApproving}
               className="w-full transition-all btn btn-primary btn-sm hover:brightness-105"
             >
@@ -80,7 +90,7 @@ export const StakingForm = ({
           )}
 
           <button
-            onClick={onStakeSubmit}
+            onClick={handleStake}
             disabled={!isInputValid || !hasAllowance || isStaking}
             className="w-full transition-all btn btn-primary btn-sm hover:brightness-105"
           >

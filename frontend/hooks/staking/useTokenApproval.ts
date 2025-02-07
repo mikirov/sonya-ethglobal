@@ -1,52 +1,58 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { BigNumber } from "bignumber.js";
 import { useAccount } from "wagmi";
-import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
-export const useTokenApproval = () => {
+export const useTokenApproval = (tokenContractName: string, spenderAddress: string) => {
   const [isApproving, setIsApproving] = useState(false);
+  const [hasAllowance, setHasAllowance] = useState(false);
   const { address } = useAccount();
 
-  const { data: sonyaToken } = useScaffoldContract({
-    contractName: "sonyaToken",
+  const { data: tokenContract } = useScaffoldContract({
+    contractName: tokenContractName as any, // make sure to enter the correct contract name in props
   });
 
   const { writeContractAsync: approve } = useScaffoldWriteContract({
-    contractName: "sonyaToken",
+    contractName: tokenContractName as any, // make sure to enter the correct contract name in props
   });
 
-  const checkAllowance = async (amount: string): Promise<boolean> => {
-    if (!address || !sonyaToken || !amount) return false;
+  const checkAllowance = useCallback(
+    async (amount: string): Promise<void> => {
+      if (!address || !tokenContract || !amount) {
+        setHasAllowance(false);
+        return;
+      }
 
-    const value = new BigNumber(amount).multipliedBy(10 ** 18);
-    console.log("Checking allowance for amount:", amount, "converted to wei:", value.toString());
+      const value = new BigNumber(amount).multipliedBy(10 ** 18);
+      console.log("Checking allowance for amount:", amount, "converted to wei:", value.toString());
 
-    const allowance = await sonyaToken.read.allowance([address, externalContracts[8453].staking.address]);
-    console.log("Current allowance:", allowance?.toString());
+      const allowance = await tokenContract.read.allowance([address, spenderAddress]);
+      console.log("Current allowance:", allowance?.toString());
 
-    const hasAllowance = BigNumber(allowance?.toString() || "0").gte(value);
-    console.log("Has sufficient allowance:", hasAllowance);
+      const allowed = BigNumber(allowance?.toString() || "0").gte(value);
+      console.log("Has sufficient allowance:", allowed);
 
-    return hasAllowance;
-  };
+      setHasAllowance(allowed);
+    },
+    [address, tokenContract, spenderAddress],
+  );
 
   const approveToken = async (amount: string) => {
-    if (!amount || !address) return false;
+    if (!amount || !address) return;
 
     try {
       setIsApproving(true);
       const value = new BigNumber(amount).multipliedBy(10 ** 18);
       console.log("Approving amount:", amount, "converted to wei:", value.toString());
-      console.log("Approving spender:", externalContracts[8453].staking.address);
+      console.log("Approving spender:", spenderAddress);
 
       await approve({
         functionName: "approve",
-        args: [externalContracts[8453].staking.address, value],
+        args: [spenderAddress, value],
       } as never);
 
       console.log("Token approval successful");
-      return true;
+      await checkAllowance(amount);
     } catch (error) {
       console.error("Error approving tokens:", error);
       throw error;
@@ -57,6 +63,7 @@ export const useTokenApproval = () => {
 
   return {
     isApproving,
+    hasAllowance,
     checkAllowance,
     approveToken,
   };

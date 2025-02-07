@@ -1,44 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 import { StakingForm, StakingStats, WelcomeCard } from "~~/components/staking";
 import externalContracts from "~~/contracts/externalContracts";
-import { useWatchBalance } from "~~/hooks/scaffold-eth";
-import { useStake } from "~~/hooks/staking/useStake";
+import { useScaffoldContract, useWatchBalance } from "~~/hooks/scaffold-eth";
 
-const sonyaTokenAddress = externalContracts[8453].sonyaToken.address;
 const rSonyaTokenAddress = externalContracts[8453].rSonyaToken.address;
 
 const StakingPage = () => {
   const { address } = useAccount();
-  const { login, authenticated } = usePrivy();
-  const { data: balance } = useWatchBalance({ address, token: sonyaTokenAddress });
+  const { authenticated } = usePrivy();
+  const [totalStaked, setTotalStaked] = useState<string>("0");
   const { data: rSonyaBalance } = useWatchBalance({ address, token: rSonyaTokenAddress });
 
-  const {
-    stakingAmount,
-    setStakingAmount,
-    handleStake,
-    handleApprove,
-    setMaxAmount,
-    isApproving,
-    isStaking,
-    hasAllowance,
-  } = useStake();
-
-  // Mock data
-  const mockData = {
-    totalStaked: "1234567",
-    userStaked: rSonyaBalance?.formatted,
-    userBalance: balance?.formatted,
-  };
-
-  const handleSetMaxAmount = () => {
-    setMaxAmount(mockData.userBalance || "0");
-  };
-
-  const insufficientBalance = Number(stakingAmount) > Number(mockData.userBalance);
+  const { data: stakingContract } = useScaffoldContract({
+    contractName: "staking",
+  });
+  useEffect(() => {
+    const fetchTotalStaked = async () => {
+      const totalStaked = await stakingContract?.read.totalStaked();
+      // Convert from wei to ether (18 decimals)
+      const formattedTotal = totalStaked ? (BigInt(totalStaked.toString()) / 10n ** 18n).toString() : "0";
+      setTotalStaked(formattedTotal);
+      console.log("totalStaked", formattedTotal);
+    };
+    fetchTotalStaked();
+  }, [stakingContract]);
 
   return (
     <div className="h-screen bg-gradient-to-b from-base-200 to-base-300">
@@ -50,26 +39,9 @@ const StakingPage = () => {
           </p>
         </div>
 
-        <StakingStats totalStaked={mockData.totalStaked} userStaked={mockData.userStaked || "0"} />
+        <StakingStats totalStaked={totalStaked || "0"} userStaked={rSonyaBalance?.formatted || "0"} />
 
-        <div className="max-w-xl mx-auto">
-          {!authenticated ? (
-            <WelcomeCard onLogin={login} />
-          ) : (
-            <StakingForm
-              stakingAmount={stakingAmount}
-              setStakingAmount={setStakingAmount}
-              userBalance={mockData.userBalance || "0"}
-              onStakeSubmit={handleStake}
-              onApproveSubmit={handleApprove}
-              onSetMaxAmount={handleSetMaxAmount}
-              insufficientBalance={insufficientBalance}
-              isApproving={isApproving}
-              isStaking={isStaking}
-              hasAllowance={hasAllowance}
-            />
-          )}
-        </div>
+        <div className="max-w-xl mx-auto">{!authenticated ? <WelcomeCard /> : <StakingForm />}</div>
       </div>
     </div>
   );

@@ -1,15 +1,15 @@
 import { createConfig } from "@privy-io/wagmi";
 import { Chain, createClient, fallback, http } from "viem";
-import { hardhat, mainnet } from "viem/chains";
+import { base, hardhat } from "viem/chains";
 import scaffoldConfig, { DEFAULT_ALCHEMY_API_KEY } from "~~/scaffold.config";
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
 const { targetNetworks } = scaffoldConfig;
 
 // We always want to have mainnet enabled (ENS resolution, ETH price, etc). But only once.
-export const enabledChains = targetNetworks.find((network: Chain) => network.id === 1)
+export const enabledChains = targetNetworks.find((network: Chain) => network.id === 8453)
   ? targetNetworks
-  : ([...targetNetworks, mainnet] as const);
+  : ([...targetNetworks, base] as const);
 
 export const wagmiConfig = createConfig({
   chains: enabledChains,
@@ -18,6 +18,7 @@ export const wagmiConfig = createConfig({
     let rpcFallbacks = [http()];
 
     const alchemyHttpUrl = getAlchemyHttpUrl(chain.id);
+    console.log("Alchemy HTTP URL:", alchemyHttpUrl);
 
     if (alchemyHttpUrl) {
       const isUsingDefaultKey = scaffoldConfig.alchemyApiKey === DEFAULT_ALCHEMY_API_KEY;
