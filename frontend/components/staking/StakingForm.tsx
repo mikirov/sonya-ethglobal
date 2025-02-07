@@ -5,8 +5,12 @@ interface StakingFormProps {
   setStakingAmount: (value: string) => void;
   userBalance: string;
   onStakeSubmit: () => Promise<void>;
+  onApproveSubmit: () => Promise<void>;
   onSetMaxAmount: () => void;
   insufficientBalance: boolean;
+  isApproving: boolean;
+  isStaking: boolean;
+  hasAllowance: boolean;
 }
 
 export const StakingForm = ({
@@ -14,9 +18,15 @@ export const StakingForm = ({
   setStakingAmount,
   userBalance,
   onStakeSubmit,
+  onApproveSubmit,
   onSetMaxAmount,
   insufficientBalance,
+  isApproving,
+  isStaking,
+  hasAllowance,
 }: StakingFormProps) => {
+  const isInputValid = stakingAmount && !insufficientBalance;
+
   return (
     <div className="p-6 transition-all rounded-2xl bg-base-100 hover:shadow-lg">
       <div className="space-y-4">
@@ -58,13 +68,31 @@ export const StakingForm = ({
           </label>
         </div>
 
-        <button
-          onClick={onStakeSubmit}
-          disabled={insufficientBalance || !stakingAmount}
-          className="w-full transition-all btn btn-primary btn-sm hover:brightness-105"
-        >
-          {insufficientBalance ? "Insufficient Balance" : "Stake SONYA"}
-        </button>
+        <div className="flex flex-col gap-2">
+          {!hasAllowance && (
+            <button
+              onClick={onApproveSubmit}
+              disabled={!isInputValid || isApproving}
+              className="w-full transition-all btn btn-primary btn-sm hover:brightness-105"
+            >
+              {isApproving ? "Approving..." : "Approve SONYA"}
+            </button>
+          )}
+
+          <button
+            onClick={onStakeSubmit}
+            disabled={!isInputValid || !hasAllowance || isStaking}
+            className="w-full transition-all btn btn-primary btn-sm hover:brightness-105"
+          >
+            {insufficientBalance
+              ? "Insufficient Balance"
+              : isStaking
+                ? "Staking..."
+                : !hasAllowance
+                  ? "Approve SONYA First"
+                  : "Stake SONYA"}
+          </button>
+        </div>
 
         <div className="space-y-1">
           <p className="text-xs text-center text-base-content/60">

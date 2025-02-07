@@ -18,14 +18,11 @@ export const wagmiConfig = createConfig({
     let rpcFallbacks = [http()];
 
     const alchemyHttpUrl = getAlchemyHttpUrl(chain.id);
-    const tenderlyUrl = "https://virtual.base.rpc.tenderly.co/230aa6f6-531f-438a-a68a-c88ced442f4f";
 
     if (alchemyHttpUrl) {
       const isUsingDefaultKey = scaffoldConfig.alchemyApiKey === DEFAULT_ALCHEMY_API_KEY;
       // If using default Scaffold-ETH 2 API key, we prioritize the default RPC
-      rpcFallbacks = isUsingDefaultKey
-        ? [http(), http(alchemyHttpUrl), http(tenderlyUrl)]
-        : [http(alchemyHttpUrl), http(tenderlyUrl), http()];
+      rpcFallbacks = isUsingDefaultKey ? [http(), http(alchemyHttpUrl)] : [http(alchemyHttpUrl), http()];
     }
 
     return createClient({

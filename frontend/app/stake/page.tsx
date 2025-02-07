@@ -16,7 +16,16 @@ const StakingPage = () => {
   const { data: balance } = useWatchBalance({ address, token: sonyaTokenAddress });
   const { data: rSonyaBalance } = useWatchBalance({ address, token: rSonyaTokenAddress });
 
-  const { stakingAmount, setStakingAmount, handleStakeSubmit, setMaxAmount } = useStake();
+  const {
+    stakingAmount,
+    setStakingAmount,
+    handleStake,
+    handleApprove,
+    setMaxAmount,
+    isApproving,
+    isStaking,
+    hasAllowance,
+  } = useStake();
 
   // Mock data
   const mockData = {
@@ -51,9 +60,13 @@ const StakingPage = () => {
               stakingAmount={stakingAmount}
               setStakingAmount={setStakingAmount}
               userBalance={mockData.userBalance || "0"}
-              onStakeSubmit={handleStakeSubmit}
+              onStakeSubmit={handleStake}
+              onApproveSubmit={handleApprove}
               onSetMaxAmount={handleSetMaxAmount}
               insufficientBalance={insufficientBalance}
+              isApproving={isApproving}
+              isStaking={isStaking}
+              hasAllowance={hasAllowance}
             />
           )}
         </div>

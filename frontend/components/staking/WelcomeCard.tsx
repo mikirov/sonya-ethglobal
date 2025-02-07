@@ -10,8 +10,8 @@ export const WelcomeCard = ({ onLogin }: WelcomeCardProps) => {
           <h3 className="mb-3 text-2xl font-extrabold tracking-tight text-base-content">Welcome to SONYA Staking</h3>
           <p className="mb-4 text-sm leading-relaxed text-base-content/70">
             To start staking your SONYA tokens and unlock exclusive benefits, connect your wallet first. By staking,
-            you&apos;ll earn veSONYA tokens for governance rights, revenue sharing, and special access to Sonya&apos;s
-            services.
+            you&apos;ll earn rSONYA tokens which represent your staked position. rSONYA tokens enable you to participate
+            in governance and earn rewards while your SONYA tokens remain securely staked.
           </p>
           <button onClick={onLogin} className="text-white btn btn-primary btn-sm">
             Connect to Sonya AI
