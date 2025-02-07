@@ -94,6 +94,13 @@ const Home: NextPage = () => {
                 and unlock personalized insights to transform your business.
               </p>
 
+              <button
+                onClick={login}
+                className="px-8 mb-12 text-lg font-bold text-center text-white transition-all btn btn-accent hover:scale-105"
+              >
+                Connect to Sonya AI
+              </button>
+
               <div className="grid gap-4 mx-auto mb-12 md:grid-cols-3">
                 <div className="relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-base-100/40 to-base-100/80 backdrop-blur-xl rounded-3xl" />

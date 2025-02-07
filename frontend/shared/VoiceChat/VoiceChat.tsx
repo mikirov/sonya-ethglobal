@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import classNames from "classnames";
 import { AnimatePresence, motion } from "motion/react";
 import { useAudioRecorder } from "react-audio-voice-recorder";
+import axiosInstance from "~~/utils/axiosInstance";
 
 export const VoiceChat = ({
   input,
@@ -17,25 +18,48 @@ export const VoiceChat = ({
   submit: () => void;
 }) => {
   const [tapped, setTapped] = useState(false);
-  const { startRecording, stopRecording, recordingBlob, isRecording, recordingTime, mediaRecorder } =
-    useAudioRecorder();
+
+  const { startRecording, stopRecording, isRecording, recordingTime, recordingBlob } = useAudioRecorder();
 
   const toggleRecording = () => {
     !tapped && setTapped(true);
     if (isRecording) {
       stopRecording();
-      submit();
     } else {
       startRecording();
     }
   };
 
   useEffect(() => {
-    if (!recordingBlob) return;
+    const sendAudioToApi = async (blob: Blob) => {
+      try {
+        const formData = new FormData();
+        const audioFile = new File([blob], "recording.wav", {
+          type: blob.type,
+        });
+        formData.append("file", audioFile);
 
-    // recordingBlob will be present at this point after 'stopRecording' has been called
-    console.log("🚀 ~ useEffect ~ recordingBlob:", recordingBlob);
-  }, [recordingBlob]);
+        const response = await axiosInstance.post("input/speech-to-speech-stream", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          responseType: "blob",
+        });
+
+        const audio = new Audio();
+        const url = URL.createObjectURL(response.data);
+        audio.src = url;
+        audio.onended = () => URL.revokeObjectURL(url);
+        await audio.play();
+      } catch (error) {
+        console.error("Error processing audio:", error);
+      }
+    };
+
+    if (recordingBlob && !isRecording) {
+      sendAudioToApi(recordingBlob);
+    }
+  }, [recordingBlob, isRecording]);
 
   return (
     <div className="w-full h-full flex flex-col">

@@ -4,6 +4,7 @@ import { Chat } from "~~/entities/Chat";
 import { Input } from "~~/shared/Input";
 import { MessageRole, MessageType } from "~~/shared/Message";
 import { VoiceChat } from "~~/shared/VoiceChat";
+import { streamTextToSpeech } from "~~/shared/VoiceChat/streamTextToSpeech";
 import axiosInstance from "~~/utils/axiosInstance";
 
 interface SonyaCharacterProps {
@@ -43,18 +44,14 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
         content: apiResponse.data.response,
       };
 
-      const voiceResponse = await axiosInstance.post(`input/tts-chatgpt`, {
-        text: apiResponse.data.response,
-      });
-
       setMessages(prev => [...prev, sonyaResponse]);
 
-      if (voiceResponse.data.audio) {
-        audioRef.current = new Audio(voiceResponse.data.audio);
-        audioRef.current.onplay = () => setIsSpeaking(true);
-        audioRef.current.onended = () => setIsSpeaking(false);
-        audioRef.current.onpause = () => setIsSpeaking(false);
-        audioRef.current.play();
+      const audio = await streamTextToSpeech(apiResponse.data.response);
+      if (audio) {
+        audio.onplay = () => setIsSpeaking(true);
+        audio.onended = () => setIsSpeaking(false);
+        audio.onpause = () => setIsSpeaking(false);
+        audio.play();
       }
     } catch (error) {
       console.error("Error sending input:", error);
