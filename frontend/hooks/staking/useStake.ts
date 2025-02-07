@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { parseEther } from "viem";
-import { useAccount, useSignTypedData } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
+import { useSignTypedData } from "@privy-io/react-auth";
+import { useAccount, useSignTypedData as useWagmiSignTypedData } from "wagmi";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
@@ -19,24 +20,29 @@ const types = {
     { name: "nonce", type: "uint256" },
     { name: "deadline", type: "uint256" },
   ],
-} as const;
+};
 
 export const useStake = () => {
   const [stakingAmount, setStakingAmount] = useState("");
   const { address } = useAccount();
+  const { user } = usePrivy();
+  console.log("user", user);
 
   const { writeContractAsync: stakeWithPermit } = useScaffoldWriteContract({
     contractName: "staking",
   });
 
-  const { signTypedDataAsync } = useSignTypedData();
+  const { signTypedData } = useSignTypedData();
+  const { signTypedDataAsync } = useWagmiSignTypedData();
 
   const handleStake = async (amount: string) => {
+    console.log("Starting handleStake with amount:", amount, "address:", address);
     if (!amount || !address) return;
 
     try {
       const deadline = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hour from now
-      const value = parseEther(amount);
+      const value = BigInt(amount);
+      console.log("Calculated deadline:", deadline, "Parsed value:", value.toString());
 
       const message = {
         owner: address,
@@ -45,13 +51,41 @@ export const useStake = () => {
         nonce: BigInt(0),
         deadline: BigInt(deadline),
       };
+      console.log("Constructed message:", message);
 
-      const signature = await signTypedDataAsync({
-        domain,
-        types,
-        primaryType: "Permit",
-        message,
-      });
+      console.log("Attempting to sign typed data with domain:", domain);
+      let signature: string;
+      switch (user?.linkedAccounts[0].type) {
+        case "email": {
+          const { signature: emailSignature } = await signTypedData({
+            domain,
+            types,
+            primaryType: "Permit",
+            message,
+          });
+          signature = emailSignature;
+          break;
+        }
+        case "wallet": {
+          const walletSignature = await signTypedDataAsync({
+            domain,
+            types,
+            primaryType: "Permit",
+            message,
+          });
+          signature = walletSignature;
+          break;
+        }
+        default: {
+          const { signature: defaultSignature } = await signTypedData({
+            domain,
+            types,
+            primaryType: "Permit",
+            message,
+          });
+          signature = defaultSignature;
+        }
+      }
 
       if (!signature) throw new Error("Failed to sign");
 
@@ -60,28 +94,42 @@ export const useStake = () => {
         s: "0x" + signature.slice(66, 130),
         v: parseInt(signature.slice(130, 132), 16),
       };
+      console.log("Parsed signature components - r:", r, "s:", s, "v:", v);
 
+      console.log("Calling stakeWithPermit with args:", [value, deadline, v, r, s]);
       await stakeWithPermit({
         functionName: "stakeWithPermit",
         args: [value, deadline, v, r, s],
       } as never);
+      console.log("stakeWithPermit call successful");
     } catch (error) {
       console.error("Error staking tokens:", error);
+      console.error("Error details:", {
+        error,
+        stackTrace: error instanceof Error ? error.stack : undefined,
+      });
       throw error;
     }
   };
 
   const handleStakeSubmit = async () => {
+    console.log("Starting handleStakeSubmit with amount:", stakingAmount);
     try {
       await handleStake(stakingAmount);
       setStakingAmount("");
+      console.log("Stake submitted successfully");
     } catch (error) {
       console.error("Failed to stake:", error);
+      console.error("Error details:", {
+        error,
+        stackTrace: error instanceof Error ? error.stack : undefined,
+      });
       throw error;
     }
   };
 
   const setMaxAmount = (maxAmount: string) => {
+    console.log("Setting max amount:", maxAmount);
     setStakingAmount(maxAmount);
   };
 

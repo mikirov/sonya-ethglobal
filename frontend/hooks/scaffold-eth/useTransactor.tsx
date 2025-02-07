@@ -98,6 +98,15 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
 
       // if receipt was reverted, show notification with block explorer link and return error
       if (transactionReceipt?.status === "reverted") {
+        // Log raw transaction data for Tenderly simulation
+        console.log("Transaction Data for Tenderly Simulation:", {
+          hash: transactionHash,
+          receipt: transactionReceipt,
+          error: error,
+          rawError: error?.cause || error,
+          tx: typeof tx === "function" ? "Function call" : tx,
+        });
+
         notification.error(<TxnNotification message={message} blockExplorerLink={blockExplorerTxURL} />);
         throw error;
       }
