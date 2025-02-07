@@ -75,4 +75,45 @@ export class InputService {
       throw new HttpException('Error processing text-to-speech', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async callAgent(input: string): Promise<string> {
+    const agentUrl = process.env.AGENT_URL;
+    const agentId = process.env.AGENT_ID;
+    if (!agentUrl || !agentId) {
+      throw new HttpException(
+        'AGENT_URL or AGENT_ID is not defined.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    try {
+      const messageResponse = await fetch(`${agentUrl}/${agentId}/message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: input }),
+      });
+
+      if (!messageResponse.ok) {
+        throw new HttpException(
+          `Failed to process message. Status: ${messageResponse.status}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      const messageData: any = await messageResponse.json();
+      const responseText = messageData[0]?.text;
+      if (!responseText) {
+        throw new HttpException(
+          'No text response received.',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      this.logger.log('Agent call completed.');
+      return responseText;
+    } catch (error) {
+      this.logger.error('Error calling agent:', error);
+      throw new HttpException('Failed to call agent.', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 } 

@@ -15,6 +15,8 @@ forge script script/deploy-staking.s.sol --broadcast --fork-url $RPC_URL  --priv
 
 forge script script/deploy-marketplace.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY --verify
 
+forge script script/deploy-scheduler.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY --verify
+
 forge script script/transfer-rSonya-to-staking.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY
 
 forge script script/transfer-to-marketplace.s.sol --broadcast --fork-url $RPC_URL  --private-key $PRIVATE_KEY

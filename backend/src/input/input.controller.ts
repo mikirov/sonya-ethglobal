@@ -30,7 +30,7 @@ export class InputController {
   constructor(private readonly inputService: InputService) {}
 
   /**
-   * Existing endpoint for processing input text.
+   * Updated endpoint for processing input text.
    */
   @ApiBearerAuth()
   @Post('text')
@@ -51,44 +51,10 @@ export class InputController {
   async processInput(@Body() processInputDto: TextRequestDto): Promise<TextResponseDto> {
     this.logger.log('Processing input:', processInputDto);
     const { input } = processInputDto;
-    const agentUrl = process.env.AGENT_URL;
-    const agentId = process.env.AGENT_ID;
-
-    if (!agentUrl || !agentId) {
-      throw new HttpException(
-        'AGENT_URL or AGENT_ID is not defined.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    let responseText: string;
-
     try {
-      // Forward the input to the agent's message endpoint
-      const messageResponse = await fetch(`${agentUrl}/${agentId}/message`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: input }),
-      });
-
-      if (!messageResponse.ok) {
-        throw new HttpException(
-          `Failed to process message. Status: ${messageResponse.status}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      const messageData: any = await messageResponse.json();
-      responseText = messageData[0]?.text;
-
-      if (!responseText) {
-        throw new HttpException('No text response received.', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-
-      this.logger.log('Message response:', responseText);
-
+      // Call the agent using the service
+      const responseText = await this.inputService.callAgent(input);
+      this.logger.log('Agent response:', responseText);
       return {
         response: responseText,
       };
@@ -171,8 +137,7 @@ export class InputController {
   }
 
   /**
-   * New endpoint for speech-to-text transcription using OpenAI's Whisper API.
-   * This endpoint accepts an audio file (multipart/form-data) and returns the transcribed text.
+   * Updated endpoint for speech-to-text transcription.
    */
   @ApiBearerAuth()
   @Post('speech-to-text')
@@ -190,15 +155,17 @@ export class InputController {
     if (!file) {
       throw new HttpException('No speech file provided', HttpStatus.BAD_REQUEST);
     }
+    // Transcribe the speech to text
     const transcription = await this.inputService.transcribeSpeech(file);
+    // Call the agent with the transcribed text
+    const agentResponse = await this.inputService.callAgent(transcription.text);
     return {
-      response: transcription.text,
+      response: agentResponse,
     };
   }
 
   /**
-   * New endpoint for speech-to-speech conversion using the input service.
-   * This endpoint accepts an audio file, transcribes it to text, then converts the transcribed text back to speech.
+   * Updated endpoint for speech-to-speech conversion.
    */
   @ApiBearerAuth()
   @Post('speech-to-speech')
@@ -219,10 +186,11 @@ export class InputController {
 
     // Transcribe the speech to text
     const transcription = await this.inputService.transcribeSpeech(file);
-    const text = transcription.text;
+    // Call the agent with the transcribed text
+    const agentResponse = await this.inputService.callAgent(transcription.text);
 
-    // Convert the transcribed text back to speech (non-streaming)
-    const audioBuffer = await this.inputService.convertTextToSpeech(text, false);
+    // Convert the agent's response text to speech (non-streaming)
+    const audioBuffer = await this.inputService.convertTextToSpeech(agentResponse, false);
     const audioBase64 = Buffer.from(audioBuffer).toString('base64');
 
     return {
@@ -231,8 +199,7 @@ export class InputController {
   }
 
   /**
-   * New endpoint for speech-to-speech streaming conversion using the input service.
-   * This endpoint accepts an audio file, transcribes it to text, then converts the transcribed text back to speech in a streaming manner.
+   * Updated endpoint for speech-to-speech streaming conversion.
    */
   @ApiBearerAuth()
   @Post('speech-to-speech-stream')
@@ -260,10 +227,11 @@ export class InputController {
     try {
       // Transcribe the speech to text
       const transcription = await this.inputService.transcribeSpeech(file);
-      const text = transcription.text;
+      // Call the agent with the transcribed text
+      const agentResponse = await this.inputService.callAgent(transcription.text);
 
-      // Convert the transcribed text back to speech in streaming mode
-      const ttsStream = await this.inputService.convertTextToSpeech(text, true, type);
+      // Convert the agent's response text back to speech in streaming mode
+      const ttsStream = await this.inputService.convertTextToSpeech(agentResponse, true, type);
 
       // Set proper content type header for the streaming audio
       res.setHeader('Content-Type', `audio/${type}`);
