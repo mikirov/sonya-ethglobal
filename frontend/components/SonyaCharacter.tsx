@@ -74,7 +74,7 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
       ) : (
         <div className="overflow-hidden h-full">
           <button onClick={() => setView("text")}>Back to text</button>
-          <VoiceChat input={input} setInput={setInput} isLoading={isLoading} submit={handleSend} />
+          <VoiceChat setIsLoading={setIsLoading} isLoading={isLoading} />
         </div>
       )}
       <form className="w-full" onSubmit={onSubmit}>

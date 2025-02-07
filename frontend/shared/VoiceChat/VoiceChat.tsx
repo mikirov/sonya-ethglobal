@@ -7,15 +7,11 @@ import { useAudioRecorder } from "react-audio-voice-recorder";
 import axiosInstance from "~~/utils/axiosInstance";
 
 export const VoiceChat = ({
-  input,
-  setInput,
   isLoading,
-  submit,
+  setIsLoading,
 }: {
-  input: string;
-  setInput: (input: string) => void;
   isLoading: boolean;
-  submit: () => void;
+  setIsLoading: (isLoading: boolean) => void;
 }) => {
   const [tapped, setTapped] = useState(false);
 
@@ -32,6 +28,7 @@ export const VoiceChat = ({
 
   useEffect(() => {
     const sendAudioToApi = async (blob: Blob) => {
+      setIsLoading(true);
       try {
         const formData = new FormData();
         const audioFile = new File([blob], "recording.wav", {
@@ -45,6 +42,7 @@ export const VoiceChat = ({
           },
           responseType: "blob",
         });
+        setIsLoading(false);
 
         const audio = new Audio();
         const url = URL.createObjectURL(response.data);
@@ -59,27 +57,50 @@ export const VoiceChat = ({
     if (recordingBlob && !isRecording) {
       sendAudioToApi(recordingBlob);
     }
-  }, [recordingBlob, isRecording]);
+  }, [recordingBlob, isRecording, setIsLoading]);
+
+  const recordingColor = "#ff6868";
+  const speakingColor = "#93bbfb";
+  const loadingColor = "#dd93fb";
 
   return (
     <div className="w-full h-full flex flex-col">
       <div className="relative cursor-pointer h-full flex justify-center items-center" onClick={toggleRecording}>
         <motion.div
-          className={classNames("rounded-full w-32 h-32 bg-accent animate-blob")}
-          initial={{ scale: 1 }}
-          animate={isRecording ? { scale: 1.3 } : { scale: 1 }}
+          className={classNames("rounded-full w-32 h-32 animate-blob", speakingColor)}
+          initial={{ rotate: 0, scale: 1 }}
+          animate={
+            isLoading
+              ? {
+                  rotate: 180,
+                  scale: 1.1,
+                  backgroundColor: loadingColor,
+                }
+              : isRecording
+                ? { scale: 1.3, backgroundColor: recordingColor }
+                : { scale: 1, backgroundColor: speakingColor }
+          }
           transition={{
             duration: 3,
             ease: "easeInOut",
             type: "spring",
-            repeat: isRecording ? Infinity : 0,
+            repeat: Infinity,
             repeatType: "reverse",
           }}
         >
           <motion.div
-            className={classNames("rounded-full w-32 h-32 bg-accent/30 animate-blob", {})}
+            className={classNames("rounded-full w-32 h-32 opacity-30 animate-blob", speakingColor)}
             initial={{ scale: 1 }}
-            animate={isRecording ? { scale: 1.3 } : { scale: 1 }}
+            animate={
+              isLoading
+                ? {
+                    scale: 1.1,
+                    backgroundColor: loadingColor,
+                  }
+                : isRecording
+                  ? { scale: 1.3, backgroundColor: recordingColor }
+                  : { scale: 1, backgroundColor: speakingColor }
+            }
             transition={{
               duration: 1,
               ease: "easeInOut",
