@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title Marketplace
@@ -15,7 +16,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
  * Note: This example assumes that both USDC and USDT use 6 decimals.
  * The Sonya token is assumed to have 18 decimals.
  */
-contract Marketplace is Ownable, Pausable {
+contract Marketplace is Ownable, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     // The two allowed tokens: USDC and USDT.
@@ -28,7 +29,7 @@ contract Marketplace is Ownable, Pausable {
     uint256 public constant THRESHOLD_USDC = 50 * 10**6;
     uint256 public constant THRESHOLD_USDT = 50 * 10**6;
     // Bonus amount: 2 Sonya tokens (assuming 18 decimals)
-    uint256 public constant BONUS_AMOUNT = 2 * 10**18;
+    uint256 public constant BONUS_MULTIPLIER = 2 ;
 
     // Event emitted after a successful deposit meeting the threshold.
     event DepositReceived(address indexed sender, address token, uint256 amount);
@@ -57,18 +58,22 @@ contract Marketplace is Ownable, Pausable {
      * - The caller must have approved this contract to spend at least `amount` of USDC.
      * - `amount` must be at least the threshold (i.e. $50).
      * - The contract should hold enough Sonya tokens to reward the sender.
+     *
+     * Follows the Checks-Effects-Interactions pattern and includes reentrancy protection.
      */
-    function depositUSDC(uint256 amount) external whenNotPaused {
+    function depositUSDC(uint256 amount) external whenNotPaused nonReentrant {
+        // CHECK: Ensure the deposit amount meets the threshold.
         require(amount >= THRESHOLD_USDC, "Deposit amount below $50 threshold");
 
-        // Transfer USDC from the sender to this contract.
+        // INTERACTIONS: Transfer USDC from the sender to this contract.
         usdc.safeTransferFrom(msg.sender, address(this), amount);
 
-        // Emit the event indicating a deposit was received.
-        emit DepositReceived(msg.sender, address(usdc), amount);
+        // INTERACTIONS: Calculate and transfer the bonus Sonya tokens.
+        uint256 bonus = amount * BONUS_MULTIPLIER;
+        usdSonyaToken.safeTransfer(msg.sender, bonus);
 
-        // Transfer bonus Sonya tokens to the depositor.
-        usdSonyaToken.safeTransfer(msg.sender, amount * BONUS_AMOUNT);
+        // EFFECT: Emit the deposit event after transfers complete.
+        emit DepositReceived(msg.sender, address(usdc), amount);
     }
 
     /**
@@ -79,32 +84,40 @@ contract Marketplace is Ownable, Pausable {
      * - The caller must have approved this contract to spend at least `amount` of USDT.
      * - `amount` must be at least the threshold (i.e. $50).
      * - The contract should hold enough Sonya tokens to reward the sender.
+     *
+     * Follows the Checks-Effects-Interactions pattern and includes reentrancy protection.
      */
-    function depositUSDT(uint256 amount) external whenNotPaused {
+    function depositUSDT(uint256 amount) external whenNotPaused nonReentrant {
+        // CHECK: Ensure the deposit amount meets the threshold.
         require(amount >= THRESHOLD_USDT, "Deposit amount below $50 threshold");
 
-        // Transfer USDT from the sender to this contract.
+        // INTERACTIONS: Transfer USDT from the sender to this contract.
         usdt.safeTransferFrom(msg.sender, address(this), amount);
 
-        // Emit the event indicating a deposit was received.
-        emit DepositReceived(msg.sender, address(usdt), amount);
+        // INTERACTIONS: Calculate and transfer the bonus Sonya tokens.
+        uint256 bonus = amount * BONUS_MULTIPLIER;
+        usdSonyaToken.safeTransfer(msg.sender, bonus);
 
-        // Transfer bonus Sonya tokens to the depositor.
-        usdSonyaToken.safeTransfer(msg.sender, amount * BONUS_AMOUNT);
+        // EFFECT: Emit the deposit event after transfers complete.
+        emit DepositReceived(msg.sender, address(usdt), amount);
     }
 
     /**
      * @notice Withdraw tokens from the contract.
      * @param token The ERC20 token to withdraw.
      * @param amount The amount to withdraw.
+     *
      * Only the owner can call this function.
+     * Follows the Checks-Effects-Interactions pattern and includes reentrancy protection.
      */
-    function withdraw(IERC20 token, uint256 amount) external onlyOwner {
+    function withdraw(IERC20 token, uint256 amount) external onlyOwner nonReentrant {
+        // INTERACTIONS: Transfer the specified token amount to the owner.
         token.safeTransfer(owner(), amount);
     }
 
     /**
      * @notice Pause the contract. Prevents deposits.
+     *
      * Only the owner can call this function.
      */
     function pause() external onlyOwner {
@@ -113,6 +126,7 @@ contract Marketplace is Ownable, Pausable {
 
     /**
      * @notice Unpause the contract. Allows deposits.
+     *
      * Only the owner can call this function.
      */
     function unpause() external onlyOwner {

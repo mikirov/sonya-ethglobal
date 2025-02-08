@@ -4,6 +4,7 @@ pragma solidity 0.8.25;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title Schedule Contract
@@ -11,7 +12,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  *      When a user calls the schedule() method, the contract pulls 100 usdSONYA tokens
  *      from their wallet and creates an appointment struct with their address, start timestamp, and a duration of 1 hour.
  */
-contract Schedule is ReentrancyGuard {
+contract Schedule is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     // The tokens used for paying for an appointment.
@@ -20,8 +21,8 @@ contract Schedule is ReentrancyGuard {
 
     // Cost of scheduling with usdSONYA: 100 usdSONYA tokens.
     uint256 public constant APPOINTMENT_COST = 100 * 10**18;
-    // Cost of scheduling with rSONYA: 50 rSONYA tokens.
-    uint256 public constant APPOINTMENT_COST_R = 50 * 10**18;
+    // Cost of scheduling with rSONYA: Initially 50 wei rSONYA tokens (modifiable by the owner).
+    uint256 public appointmentCostR = 50; // wei
 
     // Appointment duration is defined to be 1 hour.
     uint256 public constant APPOINTMENT_DURATION = 1 hours;
@@ -41,12 +42,17 @@ contract Schedule is ReentrancyGuard {
         uint256 duration
     );
 
+    // Event emitted when the rSONYA appointment cost is updated.
+    event AppointmentCostRUpdated(
+        uint256 newAppointmentCostR
+    );
+
     /**
      * @notice Constructor sets the usdSONYA and rSONYA token contracts.
      * @param _usdSONYA The IERC20 token used for scheduling appointments with usdSONYA.
      * @param _rSONYA The IERC20 token used for scheduling appointments with rSONYA.
      */
-    constructor(IERC20 _usdSONYA, IERC20 _rSONYA) {
+    constructor(IERC20 _usdSONYA, IERC20 _rSONYA) Ownable(msg.sender) {
         require(address(_usdSONYA) != address(0), "Invalid usdSONYA address");
         require(address(_rSONYA) != address(0), "Invalid rSONYA address");
         usdSONYA = _usdSONYA;
@@ -71,7 +77,7 @@ contract Schedule is ReentrancyGuard {
         // Store the appointment in the mapping using the sender's address as the key.
         appointments[msg.sender] = newAppointment;
 
-        // Emit event without msg.sender (as defined by the event declaration)
+        // Emit event with the appointment details.
         emit AppointmentScheduled(newAppointment.startTimestamp, newAppointment.duration);
     }
 
@@ -80,8 +86,8 @@ contract Schedule is ReentrancyGuard {
      * @param startTimestamp The desired start timestamp for the appointment.
      */
     function scheduleWithRSonya(uint256 startTimestamp) external nonReentrant {
-        // Pull 50 rSONYA tokens from the user.
-        rSONYA.safeTransferFrom(msg.sender, address(this), APPOINTMENT_COST_R);
+        // Pull appointmentCostR rSONYA tokens from the user.
+        rSONYA.safeTransferFrom(msg.sender, address(this), appointmentCostR);
 
         // Create an appointment struct with the provided start timestamp and a 1-hour duration.
         Appointment memory newAppointment = Appointment({
@@ -92,6 +98,18 @@ contract Schedule is ReentrancyGuard {
         // Store the appointment in the mapping using the sender's address as the key.
         appointments[msg.sender] = newAppointment;
 
+        // Emit event with the appointment details.
         emit AppointmentScheduled(newAppointment.startTimestamp, newAppointment.duration);
+    }
+
+    /**
+     * @notice Set the cost for scheduling an appointment with rSONYA tokens.
+     * @param newCost The new cost in rSONYA tokens.
+     * @dev Only the owner can call this function.
+     */
+    function setAppointmentCostR(uint256 newCost) external onlyOwner {
+        require(newCost > 0, "Appointment cost must be greater than zero");
+        appointmentCostR = newCost;
+        emit AppointmentCostRUpdated(newCost);
     }
 } 
