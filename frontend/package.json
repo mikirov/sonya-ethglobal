@@ -23,6 +23,7 @@
     "@uniswap/v2-sdk": "~4.6.1",
     "@wagmi/core": "^2.16.3",
     "axios": "^1.7.9",
+    "bignumber.js": "^9.1.2",
     "blo": "~1.2.0",
     "burner-connector": "0.0.9",
     "classnames": "^2.5.1",

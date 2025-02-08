@@ -15,9 +15,9 @@ import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
  */
 export const LoginButton = () => {
   const { targetNetwork } = useTargetNetwork();
-  const { login, ready, authenticated } = usePrivy();
-  const { chain, address } = useAccount();
-
+  const { login, ready, authenticated, user } = usePrivy();
+  const { chain } = useAccount();
+  const address = user?.wallet?.address;
   if (!ready) {
     return null;
   }

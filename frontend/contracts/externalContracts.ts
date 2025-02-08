@@ -1,5 +1,6 @@
 import { marketplaceAbi } from "~~/abis/marketplaceAbi";
 import { rSonyaTokenAbi } from "~~/abis/rSonyaTokenAbi";
+import { scheduleAbi } from "~~/abis/scheduleAbi";
 import { sonyaTokenAbi } from "~~/abis/sonyaTokenAbi";
 import { stakingAbi } from "~~/abis/stakingAbi";
 import { usdSonyaTokenAbi } from "~~/abis/usdSonyaTokenAbi";
@@ -37,6 +38,10 @@ const externalContracts = {
     usdSonyaToken: {
       address: "0x6fB55CD0230a98c7ed32ccD9B0FC7e6f4478eE12",
       abi: usdSonyaTokenAbi,
+    },
+    schedule: {
+      address: "0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D",
+      abi: scheduleAbi,
     },
   },
 } as const;
