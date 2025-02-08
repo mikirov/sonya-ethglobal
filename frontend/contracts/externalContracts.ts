@@ -1,3 +1,4 @@
+import { erc20Abi } from "viem";
 import { marketplaceAbi } from "~~/abis/marketplaceAbi";
 import { rSonyaTokenAbi } from "~~/abis/rSonyaTokenAbi";
 import { scheduleAbi } from "~~/abis/scheduleAbi";
@@ -42,6 +43,14 @@ const externalContracts = {
     schedule: {
       address: "0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D",
       abi: scheduleAbi,
+    },
+    USDC: {
+      address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      abi: erc20Abi,
+    },
+    USDT: {
+      address: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+      abi: erc20Abi,
     },
   },
 } as const;
