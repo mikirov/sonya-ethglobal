@@ -145,7 +145,7 @@ const Home: NextPage = () => {
 
               <button
                 onClick={login}
-                className="px-8 text-lg font-bold text-center text-white transition-all btn btn-accent hover:scale-105"
+                className="md:hidden px-8 text-lg font-bold text-center text-white transition-all btn btn-accent hover:scale-105"
               >
                 Connect to Sonya AI
               </button>
