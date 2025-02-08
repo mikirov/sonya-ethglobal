@@ -32,7 +32,8 @@ const Marketplace = () => {
     contractName: "marketplace",
   });
 
-  const handleDeposit = async () => {
+  const handleDeposit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!amount) return;
     try {
       const amountInWei = BigInt(parseFloat(amount) * 1e6);
@@ -63,7 +64,7 @@ const Marketplace = () => {
   }
 
   return (
-    <div className="container max-w-2xl p-8 mx-auto">
+    <div className="container max-w-2xl p-8 mx-auto border rounded-lg bg-base-100 border-base-300 hover:shadow-xl">
       <h1 className="mb-8 text-3xl font-bold text-center">Token Marketplace</h1>
 
       <div className="p-6 rounded-lg bg-base-200">
@@ -76,32 +77,40 @@ const Marketplace = () => {
           </div>
         </div>
 
-        <div className="mb-6">
-          <label className="block mb-2">Select Token</label>
-          <select
-            className="w-full p-2 rounded-lg bg-base-100"
-            value={selectedToken}
-            onChange={e => setSelectedToken(e.target.value as "USDC" | "USDT")}
-          >
-            <option value="USDC">USDC</option>
-            <option value="USDT">USDT</option>
-          </select>
-        </div>
+        <form onSubmit={handleDeposit} className="space-y-4">
+          <div className="form-control">
+            <label className="py-1 label">
+              <span className="text-sm font-medium label-text">Select Token</span>
+            </label>
+            <select
+              className="w-full h-10 input input-bordered focus:input-primary"
+              value={selectedToken}
+              onChange={e => setSelectedToken(e.target.value as "USDC" | "USDT")}
+              required
+            >
+              <option value="USDC">USDC</option>
+              <option value="USDT">USDT</option>
+            </select>
+          </div>
 
-        <div className="mb-6">
-          <label className="block mb-2">Amount (min $50)</label>
-          <input
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            placeholder="Enter amount"
-            type="number"
-            className="w-full p-2 rounded-lg bg-base-100"
-          />
-        </div>
+          <div className="form-control">
+            <label className="py-1 label">
+              <span className="text-sm font-medium label-text">Amount (min $50)</span>
+            </label>
+            <input
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              placeholder="Enter amount"
+              type="number"
+              className="w-full h-10 input input-bordered focus:input-primary"
+              required
+            />
+          </div>
 
-        <button className="w-full py-2 font-bold rounded-lg bg-primary hover:bg-primary/80" onClick={handleDeposit}>
-          Deposit {selectedToken}
-        </button>
+          <button type="submit" className="w-full h-10 transition-all btn btn-primary hover:brightness-105">
+            Deposit {selectedToken}
+          </button>
+        </form>
       </div>
     </div>
   );

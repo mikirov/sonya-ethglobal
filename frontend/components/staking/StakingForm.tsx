@@ -3,6 +3,7 @@ import { useAccount } from "wagmi";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import externalContracts from "~~/contracts/externalContracts";
 import { useWatchBalance } from "~~/hooks/scaffold-eth";
+import { useClaimSonyaRewards } from "~~/hooks/staking/useClaimSonyaRewards";
 import { useStake } from "~~/hooks/staking/useStake";
 import { useTokenApproval } from "~~/hooks/staking/useTokenApproval";
 
@@ -12,6 +13,7 @@ export const StakingForm = () => {
   const { data: userBalance } = useWatchBalance({ address, token: sonyaTokenAddress });
 
   const { stakingAmount, setStakingAmount, handleStake, setMaxAmount, isStaking } = useStake();
+  const { handleClaimRewards, handleClaimVeRewards, isClaiming } = useClaimSonyaRewards();
 
   const { isApproving, checkAllowance, approveToken, hasAllowance } = useTokenApproval(
     "sonyaToken",
@@ -102,6 +104,16 @@ export const StakingForm = () => {
                   ? "Approve SONYA First"
                   : "Stake SONYA"}
           </button>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleClaimRewards}
+              disabled={isClaiming}
+              className="flex-1 transition-all btn btn-secondary btn-sm hover:brightness-105"
+            >
+              {isClaiming ? "Claiming..." : "Claim SONYA"}
+            </button>
+          </div>
         </div>
 
         <div className="space-y-1">
