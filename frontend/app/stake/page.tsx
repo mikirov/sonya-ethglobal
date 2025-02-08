@@ -8,12 +8,16 @@ import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldContract, useWatchBalance } from "~~/hooks/scaffold-eth";
 
 const rSonyaTokenAddress = externalContracts[8453].rSonyaToken.address;
+const usdSonyaTokenAddress = externalContracts[8453].usdSonyaToken.address;
 
 const StakingPage = () => {
   const { address } = useAccount();
   const { authenticated } = usePrivy();
   const [totalStaked, setTotalStaked] = useState<string>("0");
   const { data: rSonyaBalance } = useWatchBalance({ address, token: rSonyaTokenAddress });
+  const { data: usdSonyaBalance } = useWatchBalance({ address, token: usdSonyaTokenAddress });
+  console.log("rSonyaBalance", rSonyaBalance);
+  console.log("usdSonyaBalance", usdSonyaBalance);
 
   const { data: stakingContract } = useScaffoldContract({
     contractName: "staking",

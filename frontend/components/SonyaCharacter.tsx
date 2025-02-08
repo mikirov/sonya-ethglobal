@@ -7,12 +7,7 @@ import { VoiceChat } from "~~/shared/VoiceChat";
 import { streamTextToSpeech } from "~~/shared/VoiceChat/streamTextToSpeech";
 import axiosInstance from "~~/utils/axiosInstance";
 
-interface SonyaCharacterProps {
-  walletAddress?: string;
-}
-
-export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress }) => {
-  const { login, authenticated } = usePrivy();
+export const SonyaCharacter: React.FC = () => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -68,11 +63,11 @@ export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ walletAddress })
   return (
     <div className="h-[calc(100vh-164px)] md:h-[calc(100vh-124px)] container px-8 py-3 mx-auto flex flex-col gap-5">
       {view === "text" ? (
-        <div className="overflow-hidden h-full">
+        <div className="h-full overflow-hidden">
           <Chat messages={messages} toggleToVoice={() => setView("voice")} />
         </div>
       ) : (
-        <div className="overflow-hidden h-full">
+        <div className="h-full overflow-hidden">
           <button onClick={() => setView("text")}>Back to text</button>
           <VoiceChat setIsLoading={setIsLoading} isLoading={isLoading} />
         </div>
