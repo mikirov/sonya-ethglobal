@@ -9,7 +9,7 @@ import axiosInstance from "~~/utils/axiosInstance";
 export const SonyaCharacter: React.FC = () => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [view, setView] = useState<"text" | "voice">("text");
+  const [voiceChat, setVoiceChat] = useState<boolean>(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const stopAudio = () => {
@@ -47,13 +47,42 @@ export const SonyaCharacter: React.FC = () => {
     }
   };
 
+  const handleAudioSend = async (input: string) => {
+    stopAudio();
+
+    // setMessages([...messages, { role: MessageRole.User, content: input }]);
+    setIsLoading(true);
+    try {
+      const sonyaResponse: MessageType = {
+        role: MessageRole.Assistant,
+        content: input,
+      };
+
+      setMessages(prev => [...prev, sonyaResponse]);
+
+      const audio = await streamTextToSpeech(input);
+      if (audio) {
+        audio.play();
+      }
+    } catch (error) {
+      console.error("Error sending input:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-164px)] md:h-[calc(100vh-124px)] container px-8 py-3 mx-auto flex flex-col gap-5">
       <div className="relative h-full overflow-hidden">
-        <Chat messages={messages} view={view} toggleView={() => setView(view === "text" ? "voice" : "text")} />
-        {view === "voice" ? (
-            <VoiceChat setIsLoading={setIsLoading} isLoading={isLoading} handleSend={handleSend} />
-        ) : undefined}
+        {voiceChat && <Chat messages={messages} toggleVoiceChat={() => setVoiceChat(!voiceChat)} />}
+        {!voiceChat && (
+          <VoiceChat
+            setIsLoading={setIsLoading}
+            isLoading={isLoading}
+            handleSend={handleAudioSend}
+            toggleVoiceChat={() => setVoiceChat(!voiceChat)}
+          />
+        )}
       </div>
       <Input isLoading={isLoading} handleSend={handleSend} />
     </div>
