@@ -19,23 +19,23 @@ export const Footer = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
             <a
-              href="https://twitter.com/sonyaai"
+              href="https://x.com/sonya_virtuals"
               target="_blank"
               rel="noreferrer"
               className="text-sm font-medium transition-all duration-300 text-base-content/80 hover:text-primary hover:scale-105"
             >
               Twitter
             </a>
-            <a
+            {/* <a
               href="https://discord.gg/sonyaai"
               target="_blank"
               rel="noreferrer"
               className="text-sm font-medium transition-all duration-300 text-base-content/80 hover:text-primary hover:scale-105"
             >
               Discord
-            </a>
+            </a> */}
             <a
-              href="https://github.com/sonyaai"
+              href="https://github.com/mikirov/sonya-ethglobal"
               target="_blank"
               rel="noreferrer"
               className="text-sm font-medium transition-all duration-300 text-base-content/80 hover:text-primary hover:scale-105"

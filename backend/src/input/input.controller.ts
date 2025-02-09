@@ -51,20 +51,13 @@ export class InputController {
   async processInput(@Body() processInputDto: TextRequestDto): Promise<TextResponseDto> {
     this.logger.log('Processing input:', processInputDto);
     const { input } = processInputDto;
-    try {
-      // Call the agent using the service
-      const responseText = await this.inputService.callAgent(input);
-      this.logger.log('Agent response:', responseText);
-      return {
-        response: responseText,
-      };
-    } catch (error) {
-      this.logger.error('Error processing input:', error);
-      throw new HttpException(
-        'Failed to process input.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    // Call the agent using the service
+    const responseText = await this.inputService.callAgent(input);
+    this.logger.log('Agent response:', responseText);
+    return {
+      response: responseText,
+    };
+  
   }
 
   /**

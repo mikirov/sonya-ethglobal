@@ -85,7 +85,6 @@ export class InputService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    try {
       const messageResponse = await fetch(`${agentUrl}/${agentId}/message`, {
         method: 'POST',
         headers: {
@@ -111,9 +110,5 @@ export class InputService {
       }
       this.logger.log('Agent call completed.');
       return responseText;
-    } catch (error) {
-      this.logger.error('Error calling agent:', error);
-      throw new HttpException('Failed to call agent.', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
   }
 } 
