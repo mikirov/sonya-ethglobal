@@ -25,7 +25,7 @@ const externalContracts = {
       abi: marketplaceAbi,
     },
     staking: {
-      address: "0xf0aA680bcb37Fe43Af49172fC69C122b6E0c7E71",
+      address: "0x2510739C397EE720feed020C7c322db6E49D5A5e",
       abi: stakingAbi,
     },
     sonyaToken: {
@@ -33,7 +33,7 @@ const externalContracts = {
       abi: sonyaTokenAbi,
     },
     rSonyaToken: {
-      address: "0x3757665a0ED9c4100291E637AbAF2304BDE1dB02",
+      address: "0xa90cC666AEfeB466Bc9e83009A35b084Bf9c6D66",
       abi: rSonyaTokenAbi,
     },
     usdSonyaToken: {
