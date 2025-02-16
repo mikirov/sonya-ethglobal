@@ -25,12 +25,12 @@ contract Schedule is Ownable, ReentrancyGuard {
     uint256 public appointmentCostR = 50; // wei
 
     // Appointment duration is defined to be 1 hour.
-    uint256 public constant APPOINTMENT_DURATION = 1 hours;
+    uint32 public constant APPOINTMENT_DURATION = 1 hours;
 
     // Appointment struct storing appointment details.
     struct Appointment {
-        uint256 startTimestamp;
-        uint256 duration;
+        uint32 startTimestamp;
+        uint32 duration;
     }
 
     // Mapping to store each user's appointment.
@@ -38,8 +38,8 @@ contract Schedule is Ownable, ReentrancyGuard {
 
     // Event emitted when a new appointment is scheduled.
     event AppointmentScheduled(
-        uint256 startTimestamp,
-        uint256 duration
+        uint32 startTimestamp,
+        uint32 duration
     );
 
     // Event emitted when the rSONYA appointment cost is updated.
@@ -64,7 +64,7 @@ contract Schedule is Ownable, ReentrancyGuard {
      *         The user must have approved this contract to spend at least 100 usdSONYA tokens.
      *         Upon calling this function, 100 usdSONYA tokens are pulled from the user's wallet and an appointment is created.
      */
-    function schedule(uint256 startTimestamp) external nonReentrant {
+    function schedule(uint32 startTimestamp) external nonReentrant {
         // Pull 100 usdSONYA tokens from the user.
         usdSONYA.safeTransferFrom(msg.sender, address(this), APPOINTMENT_COST);
 
@@ -84,8 +84,18 @@ contract Schedule is Ownable, ReentrancyGuard {
     /**
      * @notice Schedule an appointment by paying with rSONYA tokens.
      * @param startTimestamp The desired start timestamp for the appointment.
+     * @dev Requires prior approval of rSONYA tokens using the rSONYA token's approve() function
      */
-    function scheduleWithRSonya(uint256 startTimestamp) external nonReentrant {
+    function scheduleWithRSonya(uint32 startTimestamp) external nonReentrant {
+        // Validate the timestamp
+        require(startTimestamp > uint32(block.timestamp), "Appointment must be in the future");
+        
+        // Check if user has sufficient rSONYA balance
+        require(rSONYA.balanceOf(msg.sender) >= appointmentCostR, "Insufficient rSONYA balance");
+        
+        // Check if contract has sufficient allowance
+        require(rSONYA.allowance(msg.sender, address(this)) >= appointmentCostR, "Insufficient rSONYA allowance");
+
         // Pull appointmentCostR rSONYA tokens from the user.
         rSONYA.safeTransferFrom(msg.sender, address(this), appointmentCostR);
 

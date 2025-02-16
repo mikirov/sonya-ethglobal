@@ -5,9 +5,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SwitchTheme } from "./SwitchTheme";
 import { usePrivy } from "@privy-io/react-auth";
+import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { LoginButton } from "~~/components/scaffold-eth";
+import externalContracts from "~~/contracts/externalContracts";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { useWatchBalance } from "~~/hooks/scaffold-eth";
+import { useScheduleInfo } from "~~/hooks/schedule/useScheduleInfo";
+import { useStakeInfo } from "~~/hooks/staking/useStakeInfo";
+
+const rSonyaTokenAddress = externalContracts[8453].rSonyaToken.address;
+const marketplaceTokenAddress = externalContracts[8453].usdSonyaToken.address;
 
 type HeaderMenuLink = {
   label: string;
@@ -15,23 +23,42 @@ type HeaderMenuLink = {
   icon?: React.ReactNode;
 };
 
-export const menuLinks: HeaderMenuLink[] = [
-  {
-    label: "Home",
-    href: "/",
-  },
-  {
-    label: "Schedule",
-    href: "/schedule",
-  },
-  {
-    label: "Stake",
-    href: "/stake",
-  },
-];
-
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
+  const { authenticated } = usePrivy();
+  const { hasStake } = useStakeInfo();
+  const { hasActiveAppointment } = useScheduleInfo();
+  const { address } = useAccount();
+  const { data: marketplaceBalance } = useWatchBalance({ address, token: marketplaceTokenAddress });
+
+  const menuLinks: HeaderMenuLink[] = [
+    {
+      label: "Stake",
+      href: "/stake",
+    },
+  ];
+
+  // Add Schedule link if user has staked or marketplace balance
+  if (authenticated && (hasStake || (marketplaceBalance && parseFloat(marketplaceBalance.formatted) > 0))) {
+    menuLinks.push({
+      label: "Schedule",
+      href: "/schedule",
+    });
+  }
+
+  // Add Chat link if user has active schedule
+  if (authenticated && hasActiveAppointment) {
+    menuLinks.push({
+      label: "Chat",
+      href: "/chat",
+    });
+  }
+
+  // Always show marketplace
+  menuLinks.push({
+    label: "Marketplace",
+    href: "/marketplace",
+  });
 
   return (
     <>

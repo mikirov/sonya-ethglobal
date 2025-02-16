@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
+import { useBalance } from "wagmi";
 import { StakingForm, StakingStats, WelcomeCard } from "~~/components/staking";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldContract, useWatchBalance } from "~~/hooks/scaffold-eth";
@@ -14,22 +15,42 @@ const StakingPage = () => {
   const { address } = useAccount();
   const { authenticated } = usePrivy();
   const [totalStaked, setTotalStaked] = useState<string>("0");
-  const { data: rSonyaBalance } = useWatchBalance({ address, token: rSonyaTokenAddress });
-  const { data: usdSonyaBalance } = useWatchBalance({ address, token: usdSonyaTokenAddress });
-  console.log("rSonyaBalance", rSonyaBalance);
-  console.log("usdSonyaBalance", usdSonyaBalance);
+
+  // Add loading states
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Use regular balance queries instead of watch for better performance
+  const { data: rSonyaBalance, isError: rSonyaError } = useBalance({
+    address,
+    token: rSonyaTokenAddress,
+  });
+
+  const { data: usdSonyaBalance, isError: usdSonyaError } = useBalance({
+    address,
+    token: usdSonyaTokenAddress,
+  });
 
   const { data: stakingContract } = useScaffoldContract({
     contractName: "staking",
   });
+
   useEffect(() => {
     const fetchTotalStaked = async () => {
-      const totalStaked = await stakingContract?.read.totalStaked();
-      // Convert from wei to ether (18 decimals)
-      const formattedTotal = totalStaked ? (BigInt(totalStaked.toString()) / 10n ** 18n).toString() : "0";
-      setTotalStaked(formattedTotal);
-      console.log("totalStaked", formattedTotal);
+      try {
+        setIsLoading(true);
+        if (!stakingContract) return;
+
+        const totalStaked = await stakingContract.read.totalStaked();
+        const formattedTotal = totalStaked ? (BigInt(totalStaked.toString()) / 10n ** 18n).toString() : "0";
+        setTotalStaked(formattedTotal);
+      } catch (error) {
+        console.error("Error fetching total staked:", error);
+        setTotalStaked("0");
+      } finally {
+        setIsLoading(false);
+      }
     };
+
     fetchTotalStaked();
   }, [stakingContract]);
 

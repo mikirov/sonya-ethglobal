@@ -41,7 +41,7 @@ const externalContracts = {
       abi: usdSonyaTokenAbi,
     },
     schedule: {
-      address: "0x7Bcbc36f7c4D5175B13Dfb789A3C360381D2F14D",
+      address: "0xC1A6e8A2CBD6E61d3380Fc0690145de1D57c9c60",
       abi: scheduleAbi,
     },
     USDC: {
