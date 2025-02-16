@@ -17,50 +17,47 @@ export const useScheduleInfo = () => {
     contractName: "schedule",
   });
 
-  useEffect(() => {
-    const fetchScheduleInfo = async () => {
-      if (!address || !scheduleContract) {
-        setIsLoading(false);
+  const fetchScheduleInfo = async () => {
+    if (!address || !scheduleContract) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const appointmentData = (await scheduleContract.read.appointments([address])) as bigint[];
+
+      // Check if the appointment data is valid (non-zero values)
+      if (appointmentData[0] === 0n || appointmentData[1] === 0n) {
+        setAppointment(null);
+        setHasActiveAppointment(false);
         return;
       }
 
-      try {
-        const appointmentData = (await scheduleContract.read.appointments([address])) as bigint[];
+      const appointmentInfo = {
+        startTimestamp: Number(appointmentData[0]),
+        duration: Number(appointmentData[1]),
+      };
 
-        // Check if the appointment data is valid (non-zero values)
-        if (appointmentData[0] === 0n || appointmentData[1] === 0n) {
-          setAppointment(null);
-          setHasActiveAppointment(false);
-          return;
-        }
+      setAppointment(appointmentInfo);
 
-        const appointmentInfo = {
-          startTimestamp: Number(appointmentData[0]),
-          duration: Number(appointmentData[1]),
-        };
+      // Check if appointment is active (current time is within appointment window)
+      const now = Math.floor(Date.now() / 1000);
+      const endTimestamp = appointmentInfo.startTimestamp + appointmentInfo.duration;
+      const isActive = now >= appointmentInfo.startTimestamp && now <= endTimestamp;
 
-        setAppointment(appointmentInfo);
+      setHasActiveAppointment(isActive);
+    } catch (error) {
+      console.error("❌ Error fetching appointment:", error);
+      setAppointment(null);
+      setHasActiveAppointment(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        // Check if appointment is active (current time is within appointment window)
-        const now = Math.floor(Date.now() / 1000);
-        const endTimestamp = appointmentInfo.startTimestamp + appointmentInfo.duration;
-        const isActive = now >= appointmentInfo.startTimestamp && now <= endTimestamp;
-
-        setHasActiveAppointment(isActive);
-      } catch (error) {
-        console.error("❌ Error fetching appointment:", error);
-        setAppointment(null);
-        setHasActiveAppointment(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchScheduleInfo();
-
-    // Set up interval to check appointment status every minute
     const intervalId = setInterval(fetchScheduleInfo, 60000);
-
     return () => clearInterval(intervalId);
   }, [address, scheduleContract]);
 
@@ -73,5 +70,6 @@ export const useScheduleInfo = () => {
       appointment?.startTimestamp && appointment?.duration
         ? new Date((appointment.startTimestamp + appointment.duration) * 1000)
         : null,
+    refetch: fetchScheduleInfo,
   };
 };

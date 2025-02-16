@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 import { useAccount } from "wagmi";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScheduleInfo } from "~~/hooks/schedule/useScheduleInfo";
 
 type ScheduleFormProps = {
   onScheduled?: () => void;
@@ -43,6 +44,8 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ onScheduled }) => {
   const { writeContractAsync: schedule } = useScaffoldWriteContract({ contractName: "schedule" });
   const { writeContractAsync: approve } = useScaffoldWriteContract({ contractName: "rSonyaToken" });
   const { address } = useAccount();
+  const { refetch } = useScheduleInfo();
+
   const checkAllowance = async () => {
     if (!scheduleContract || !rSonyaContract) return;
 
@@ -115,9 +118,9 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ onScheduled }) => {
       setSelectedDate("");
       setSelectedTime("");
 
-      // Add small delay to allow transaction to be mined
+      // Refetch appointment data after successful scheduling
       setTimeout(() => {
-        onScheduled?.();
+        refetch();
       }, 1000);
     } catch (error) {
       console.error("❌ Error scheduling appointment:", error);
