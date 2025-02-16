@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAccount } from "wagmi";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 
@@ -7,68 +7,56 @@ type AppointmentType = {
   duration: number;
 };
 
+// Simple cache
+let cachedAppointment: AppointmentType | null = null;
+let cachedIsActive = false;
+
 export const useScheduleInfo = () => {
   const { address } = useAccount();
-  const [appointment, setAppointment] = useState<AppointmentType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasActiveAppointment, setHasActiveAppointment] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { data: scheduleContract } = useScaffoldContract({ contractName: "schedule" });
 
-  const { data: scheduleContract } = useScaffoldContract({
-    contractName: "schedule",
-  });
+  const fetchScheduleInfo = useCallback(async () => {
+    if (!address || !scheduleContract) return { appointment: null, isActive: false };
 
-  const fetchScheduleInfo = async () => {
-    if (!address || !scheduleContract) {
-      setIsLoading(false);
-      return;
-    }
-
+    setIsLoading(true);
     try {
       const appointmentData = (await scheduleContract.read.appointments([address])) as bigint[];
+      const startTimestamp = Number(appointmentData[0]);
+      const durationSeconds = Number(appointmentData[1]);
 
-      // Check if the appointment data is valid (non-zero values)
-      if (appointmentData[0] === 0n || appointmentData[1] === 0n) {
-        setAppointment(null);
-        setHasActiveAppointment(false);
-        return;
+      if (startTimestamp === 0 || durationSeconds === 0) {
+        cachedAppointment = null;
+        cachedIsActive = false;
+        console.log("📅 No appointment found for:", address);
+      } else {
+        cachedAppointment = { startTimestamp, duration: durationSeconds };
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        cachedIsActive = nowInSeconds >= startTimestamp && nowInSeconds <= startTimestamp + durationSeconds;
+        console.log("📅 Appointment found:", {
+          start: new Date(startTimestamp * 1000).toLocaleString(),
+          duration: `${durationSeconds / 60} minutes`,
+          isActive: cachedIsActive,
+        });
       }
 
-      const appointmentInfo = {
-        startTimestamp: Number(appointmentData[0]),
-        duration: Number(appointmentData[1]),
-      };
-
-      setAppointment(appointmentInfo);
-
-      // Check if appointment is active (current time is within appointment window)
-      const now = Math.floor(Date.now() / 1000);
-      const endTimestamp = appointmentInfo.startTimestamp + appointmentInfo.duration;
-      const isActive = now >= appointmentInfo.startTimestamp && now <= endTimestamp;
-
-      setHasActiveAppointment(isActive);
+      return { appointment: cachedAppointment, isActive: cachedIsActive };
     } catch (error) {
       console.error("❌ Error fetching appointment:", error);
-      setAppointment(null);
-      setHasActiveAppointment(false);
+      return { appointment: null, isActive: false };
     } finally {
       setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchScheduleInfo();
-    const intervalId = setInterval(fetchScheduleInfo, 60000);
-    return () => clearInterval(intervalId);
   }, [address, scheduleContract]);
 
   return {
-    appointment,
+    appointment: cachedAppointment,
     isLoading,
-    hasActiveAppointment,
-    appointmentStart: appointment?.startTimestamp ? new Date(appointment.startTimestamp * 1000) : null,
+    hasActiveAppointment: cachedIsActive,
+    appointmentStart: cachedAppointment?.startTimestamp ? new Date(cachedAppointment.startTimestamp * 1000) : null,
     appointmentEnd:
-      appointment?.startTimestamp && appointment?.duration
-        ? new Date((appointment.startTimestamp + appointment.duration) * 1000)
+      cachedAppointment?.startTimestamp && cachedAppointment?.duration
+        ? new Date((cachedAppointment.startTimestamp + cachedAppointment.duration) * 1000)
         : null,
     refetch: fetchScheduleInfo,
   };

@@ -51,10 +51,10 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ onScheduled }) => {
 
     try {
       const cost = (await scheduleContract.read.appointmentCostR()) as bigint;
-      console.log("🏷️ Appointment cost:", cost.toString());
+      // console.log("🏷️ Appointment cost:", cost.toString());
 
       const allowance = (await rSonyaContract.read.allowance([address, scheduleContract.address])) as bigint;
-      console.log("💰 Current allowance:", allowance.toString());
+      // console.log("💰 Current allowance:", allowance.toString());
 
       setHasAllowance(allowance >= cost);
     } catch (error) {
