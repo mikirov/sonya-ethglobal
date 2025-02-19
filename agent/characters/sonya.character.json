@@ -1,8 +1,8 @@
 {
   "name": "Sonya",
   "plugins": [],
-  "clients": ["twitter", "telegram"],
-  "modelProvider": "openai",
+  "clients": ["twitter"],
+  "modelProvider": "openrouter",
   "settings": {
     "voice": {
       "model": "en_US-hfc_female-medium"
