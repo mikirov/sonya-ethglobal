@@ -62,7 +62,7 @@ const ChatPage = () => {
   if (showLimitMessage) {
     return (
       <div className="flex flex-col items-center justify-center flex-1 p-8 text-center">
-        <h2 className="mb-4 text-2xl font-bold">You've reached your free message limit</h2>
+        <h2 className="mb-4 text-2xl font-bold">You&apos;ve reached your free message limit</h2>
         <p className="mb-8 text-lg">To continue chatting with Sonya, you can:</p>
         <div className="flex gap-4">
           <Link href="/stake" className="btn btn-primary">
