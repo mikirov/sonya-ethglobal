@@ -46,13 +46,11 @@ export const HeaderMenuLinks = () => {
     });
   }
 
-  // Add Chat link if user has active schedule
-  if (authenticated && hasActiveAppointment) {
-    menuLinks.push({
-      label: "Chat",
-      href: "/chat",
-    });
-  }
+  // Always show Chat link
+  menuLinks.push({
+    label: "Chat",
+    href: "/chat",
+  });
 
   // Always show marketplace
   menuLinks.push({

@@ -6,7 +6,11 @@ import { VoiceChat } from "~~/shared/VoiceChat";
 import { streamTextToSpeech } from "~~/shared/VoiceChat/streamTextToSpeech";
 import axiosInstance from "~~/utils/axiosInstance";
 
-export const SonyaCharacter: React.FC = () => {
+interface SonyaCharacterProps {
+  onNewMessage?: () => void;
+}
+
+export const SonyaCharacter: React.FC<SonyaCharacterProps> = ({ onNewMessage }) => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [voiceChat, setVoiceChat] = useState<boolean>(false);
@@ -35,6 +39,7 @@ export const SonyaCharacter: React.FC = () => {
       };
 
       setMessages(prev => [...prev, sonyaResponse]);
+      onNewMessage?.();
 
       const audio = await streamTextToSpeech(apiResponse.data.response);
       if (audio) {
@@ -50,7 +55,6 @@ export const SonyaCharacter: React.FC = () => {
   const handleAudioSend = async (input: string) => {
     stopAudio();
 
-    // setMessages([...messages, { role: MessageRole.User, content: input }]);
     setIsLoading(true);
     try {
       const sonyaResponse: MessageType = {
@@ -59,6 +63,7 @@ export const SonyaCharacter: React.FC = () => {
       };
 
       setMessages(prev => [...prev, sonyaResponse]);
+      onNewMessage?.();
 
       const audio = await streamTextToSpeech(input);
       if (audio) {

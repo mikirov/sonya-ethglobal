@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 import { SonyaCharacter } from "~~/components/SonyaCharacter";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
+
+const FREE_MESSAGE_LIMIT = 5;
 
 const ChatPage = () => {
   const { authenticated } = usePrivy();
@@ -13,9 +16,10 @@ const ChatPage = () => {
   const { address } = useAccount();
   const { data: scheduleContract } = useScaffoldContract({ contractName: "schedule" });
   const [hasValidAppointment, setHasValidAppointment] = useState(false);
+  const [messageCount, setMessageCount] = useState(0);
+  const [showLimitMessage, setShowLimitMessage] = useState(false);
 
   useEffect(() => {
-    console.log("🔍 Checking schedule appointment status");
     if (!authenticated) {
       console.log("🚫 Not authenticated, redirecting to home");
       router.push("/");
@@ -31,46 +35,59 @@ const ChatPage = () => {
       try {
         const appointment = (await scheduleContract.read.appointments([address])) as bigint[];
         if (appointment[0] !== 0n && appointment[1] !== 0n) {
-          // Convert timestamp from seconds to milliseconds
           const appointmentTime = Number(appointment[0]) * 1000;
-          const duration = Number(appointment[1]) * 1000; // duration in milliseconds
+          const duration = Number(appointment[1]) * 1000;
           const now = Date.now();
-
-          // Check if current time is within appointment window
           const isWithinAppointment = now >= appointmentTime && now <= appointmentTime + duration;
-
-          console.log("✅ Appointment found:", {
-            appointmentTime: new Date(appointmentTime).toISOString(),
-            duration: `${duration / 1000 / 60} minutes`,
-            isWithinAppointment,
-          });
-
           setHasValidAppointment(isWithinAppointment);
-
-          if (!isWithinAppointment) {
-            console.log("⏰ Not within appointment window, redirecting to schedule");
-            router.push("/schedule");
-          }
-        } else {
-          console.log("ℹ️ No appointment found, redirecting to schedule");
-          router.push("/schedule");
         }
       } catch (error) {
         console.error("❌ Error checking appointment:", error);
-        router.push("/schedule");
       }
     };
 
     checkAppointment();
   }, [authenticated, address, router, scheduleContract]);
 
-  if (!hasValidAppointment) {
-    return <div>Checking appointment...</div>;
+  const handleNewMessage = () => {
+    if (!hasValidAppointment) {
+      const newCount = messageCount + 1;
+      setMessageCount(newCount);
+      if (newCount >= FREE_MESSAGE_LIMIT) {
+        setShowLimitMessage(true);
+      }
+    }
+  };
+
+  if (showLimitMessage) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 p-8 text-center">
+        <h2 className="mb-4 text-2xl font-bold">You've reached your free message limit</h2>
+        <p className="mb-8 text-lg">To continue chatting with Sonya, you can:</p>
+        <div className="flex gap-4">
+          <Link href="/stake" className="btn btn-primary">
+            Stake Tokens
+          </Link>
+          <Link href="/schedule" className="btn btn-secondary">
+            Schedule a Session
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return <div>Please connect your wallet to continue...</div>;
   }
 
   return (
     <main className="relative flex flex-col flex-1 h-full overflow-hidden">
-      <SonyaCharacter />
+      <SonyaCharacter onNewMessage={handleNewMessage} />
+      {!hasValidAppointment && (
+        <div className="absolute top-0 left-0 right-0 p-2 text-center bg-warning/20">
+          Free trial: {messageCount}/{FREE_MESSAGE_LIMIT} messages used
+        </div>
+      )}
     </main>
   );
 };
