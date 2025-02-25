@@ -1,13 +1,13 @@
 services:
-  sonya-db:
+  esscrypt-agent-db:
     image: pgvector/pgvector:pg17 # PostgreSQL with pgvector support
     container_name: sonya-db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: sonya
     ports:
-      - "5434:5432"
+      - "5436:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 

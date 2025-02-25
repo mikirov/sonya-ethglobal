@@ -1,10 +1,28 @@
 "use client";
 
 import Link from "next/link";
+import { usePrivy } from "@privy-io/react-auth";
+import { SonyaCharacter } from "~~/components/SonyaCharacter";
 import { useScheduleInfo } from "~~/hooks/schedule/useScheduleInfo";
 
 export default function Home() {
+  const { authenticated } = usePrivy();
   const { hasActiveAppointment } = useScheduleInfo();
+
+  if (authenticated) {
+    return (
+      <main className="relative flex flex-col flex-1 h-full overflow-hidden">
+        <SonyaCharacter />
+        {!hasActiveAppointment && (
+          <div className="absolute top-0 left-0 right-0 p-2 text-center bg-warning/20">
+            <Link href="/schedule" className="hover:underline">
+              Schedule a session to unlock unlimited chat
+            </Link>
+          </div>
+        )}
+      </main>
+    );
+  }
 
   return (
     <main className="flex flex-col items-center flex-1">
@@ -17,15 +35,9 @@ export default function Home() {
             Schedule a consultation with Sonya AI and get personalized assistance.
           </p>
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            {hasActiveAppointment ? (
-              <Link href="/chat" className="px-8 py-3 text-base font-medium rounded-xl btn btn-primary animate-pulse">
-                Join Your Active Session
-              </Link>
-            ) : (
-              <Link href="/schedule" className="px-8 py-3 text-base font-medium rounded-xl btn btn-primary">
-                Schedule a Session
-              </Link>
-            )}
+            <Link href="/schedule" className="px-8 py-3 text-base font-medium rounded-xl btn btn-primary">
+              Schedule a Session
+            </Link>
           </div>
         </div>
       </div>

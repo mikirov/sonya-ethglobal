@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { AnimatePresence, motion } from "motion/react";
 import { useAudioRecorder } from "react-audio-voice-recorder";
@@ -24,11 +24,16 @@ export const VoiceChat = ({
   toggleVoiceChat: () => void;
 }) => {
   const [bubbleText, setBubbleText] = useState<BubbleText>(BubbleText.TAP_ME);
-
-  const { startRecording, stopRecording, isRecording, recordingBlob } = useAudioRecorder();
+  const audioTrackRef = useRef<MediaRecorder | null>(null);
+  const processedBlobRef = useRef<Blob | null>(null);
+  const isProcessingRef = useRef(false);
 
   const sendAudioToApi = useCallback(
     async (blob: Blob) => {
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
+
+      console.log("🎤 sendAudioToApi called with blob:", blob);
       setIsLoading(true);
       setBubbleText(BubbleText.LOADING);
       try {
@@ -38,6 +43,7 @@ export const VoiceChat = ({
         });
         formData.append("file", audioFile);
 
+        console.log("📤 Sending audio to API...");
         const response = await axiosInstance.post("input/speech-to-text", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -45,23 +51,35 @@ export const VoiceChat = ({
           },
         });
 
-        console.log("Speech-to-text response:", response.data);
+        console.log("📥 Speech-to-text response:", response.data);
         handleSend(response.data.response);
       } catch (error) {
-        console.error("Error processing audio:", error);
+        console.error("❌ Error processing audio:", error);
       } finally {
         setIsLoading(false);
-        !isRecording && setBubbleText(BubbleText.TAP_ME);
+        setBubbleText(BubbleText.TAP_ME);
+        isProcessingRef.current = false;
       }
     },
-    [isRecording, setIsLoading, handleSend],
+    [setIsLoading, handleSend],
   );
 
+  const { startRecording, stopRecording, isRecording, recordingBlob } = useAudioRecorder();
+
   const toggleRecording = () => {
+    console.log("🔄 Toggle recording, current state:", { isRecording });
     if (isRecording) {
+      console.log("⏹️ Stopping recording...");
       stopRecording();
-      sendAudioToApi(recordingBlob as Blob);
+      if (recordingBlob) {
+        console.log("🎤 Recording completed, processing blob:", recordingBlob);
+        setBubbleText(BubbleText.LOADING);
+        sendAudioToApi(recordingBlob);
+      }
     } else {
+      console.log("⏺️ Starting recording...");
+      processedBlobRef.current = null;
+      isProcessingRef.current = false;
       setBubbleText(BubbleText.RECORDING);
       startRecording();
     }

@@ -6,7 +6,7 @@ import { useAccount } from "wagmi";
 import { useBalance } from "wagmi";
 import { StakingForm, StakingStats, WelcomeCard } from "~~/components/staking";
 import externalContracts from "~~/contracts/externalContracts";
-import { useScaffoldContract, useWatchBalance } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 
 const rSonyaTokenAddress = externalContracts[8453].rSonyaToken.address;
 const usdSonyaTokenAddress = externalContracts[8453].usdSonyaToken.address;
